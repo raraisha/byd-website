@@ -2,26 +2,51 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Build Your Dreams</title>
-  <script type="module">
-    import supabase from './supabase.js'
-
-    async function checkConnection() {
-      const statusEl = document.getElementById("status")
-      const { data, error } = await supabase.from("users").select("*").limit(1)
-
-      if (error) {
-        statusEl.textContent = "❌ Gagal connect: " + error.message
-      } else {
-        statusEl.textContent = "✅ Supabase nyambung! Data: " + JSON.stringify(data)
-      }
-    }
-
-    checkConnection()
-  </script>
+  <title>BYD Website</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Cek Koneksi Supabase</h1>
-  <p id="status">Mengecek...</p>
+  <!-- Stars Background -->
+  <div class="stars" id="stars"></div>
+
+  <!-- Navbar -->
+  <div id="navbar-container"></div>
+
+  <!-- Hero -->
+  <section class="hero text-center">
+    <h1 class="display-4 fw-bold mt-5"></h1>
+    <img src="/image/Group 3.png" alt="BYD Car" class="img-fluid mt-3" style="max-width:1000px;">
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Load navbar
+    fetch("navbar.html")
+      .then(res => res.text())
+      .then(data => {
+        document.getElementById("navbar-container").innerHTML = data;
+        const links = document.querySelectorAll(".nav-link");
+        links.forEach(link => {
+          if (link.href === window.location.href) {
+            link.classList.add("active");
+          }
+        });
+      });
+
+    // Generate bintang random
+    const starsContainer = document.getElementById("stars");
+    for (let i = 0; i < 100; i++) {
+      const star = document.createElement("div");
+      star.className = "star";
+      const size = Math.random() * 3 + 1 + "px";
+      star.style.width = size;
+      star.style.height = size;
+      star.style.top = Math.random() * 100 + "%";
+      star.style.left = Math.random() * 100 + "%";
+      star.style.animationDuration = (Math.random() * 3 + 2) + "s";
+      starsContainer.appendChild(star);
+    }
+  </script>
 </body>
 </html>
