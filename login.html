@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login | BYD Motors</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      overflow: hidden;
+      background: radial-gradient(circle at top, #0a0a0a, #000);
+      color: white;
+    }
+
+    /* canvas background */
+    canvas#stars {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+
+    .input-field {
+      background-color: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: 0.3s;
+    }
+    .input-field:focus {
+      border-color: rgba(0, 255, 255, 0.7);
+      outline: none;
+      box-shadow: 0 0 8px rgba(0, 255, 255, 0.3);
+    }
+
+    .login-card {
+      background-color: rgba(0, 0, 0, 0.15);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(0, 255, 255, 0.3);
+      box-shadow: 0 0 25px rgba(0, 255, 255, 0.15);
+    }
+
+    button:hover {
+      box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+      transform: translateY(-2px);
+    }
+
+        .back-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background-color: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #06b6d4;
+      padding: 8px 14px;
+      border-radius: 12px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .back-btn:hover {
+      background-color: rgba(6, 182, 212, 0.2);
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center relative">
+
+  <!-- Stars background -->
+  <canvas id="stars"></canvas>
+    <button onclick="history.back()" class="back-btn">
+    <i data-lucide="arrow-left"></i>
+    Back
+  </button>
+
+  <!-- Login Card -->
+  <div class="login-card relative z-10 rounded-2xl p-10 w-[400px] shadow-lg">
+    <div class="flex flex-col items-center mb-8">
+      <img src="image/logo.png" alt="BYD Logo" class="h-14 w-auto mb-4">
+      <h1 class="text-2xl font-semibold text-cyan-400">Welcome Back</h1>
+      <p class="text-gray-400 text-sm mt-1">Login to your BYD account</p>
+    </div>
+
+    <form action="#" method="POST" class="space-y-5">
+      <div>
+        <label class="block text-sm mb-2 text-gray-300">Email</label>
+        <input type="email" name="email" required
+          class="w-full input-field px-4 py-3 rounded-xl text-sm text-white placeholder-gray-400"
+          placeholder="Enter your email">
+      </div>
+
+      <div>
+        <label class="block text-sm mb-2 text-gray-300">Password</label>
+        <input type="password" name="password" required
+          class="w-full input-field px-4 py-3 rounded-xl text-sm text-white placeholder-gray-400"
+          placeholder="Enter your password">
+      </div>
+
+      <button type="submit"
+        class="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-semibold py-3 rounded-xl transition">
+        Login
+      </button>
+
+      <p class="text-center text-gray-400 text-sm mt-4">
+        Don’t have an account?
+        <a href="register.html" class="text-cyan-400 hover:underline">Sign up</a>
+      </p>
+    </form>
+  </div>
+
+  <script>
+    lucide.createIcons();
+    // efek bintang bergerak
+    const canvas = document.getElementById('stars');
+    const ctx = canvas.getContext('2d');
+    let stars = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      stars = [];
+      for (let i = 0; i < 120; i++) {
+        stars.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          radius: Math.random() * 1.5,
+          speed: Math.random() * 0.5 + 0.2
+        });
+      }
+    }
+
+    function animateStars() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = 'rgba(0, 255, 255, 0.8)';
+      stars.forEach(star => {
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+        ctx.fill();
+        star.y += star.speed;
+        if (star.y > canvas.height) star.y = 0;
+      });
+      requestAnimationFrame(animateStars);
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+    animateStars();
+  </script>
+</body>
+</html>
