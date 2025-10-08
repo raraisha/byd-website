@@ -98,16 +98,6 @@
       line-height: 1.7;
     }
 
-    footer {
-  background-color: #000000; /* hitam pekat */
-  border-top: 2px solid rgba(0, 255, 255, 0.3); /* garis cyan lembut di atas */
-  box-shadow: 0 -5px 25px rgba(0, 255, 255, 0.15); /* efek glow ke atas */
-}
-footer p {
-  color: #a3faff;
-  text-shadow: 0 0 8px rgba(0,255,255,0.5);
-}
-
   </style>
 </head>
 
@@ -118,18 +108,7 @@ footer p {
     <div class="floating-dots"></div>
   </div>
 
-  <!-- Navbar -->
-  <nav class="fixed top-6 left-1/2 transform -translate-x-1/2 w-[1200px] bg-black/50 nav-glow flex justify-between items-center px-10 py-3 z-50 rounded-full">
-    <div class="flex items-center space-x-2">
-      <img src="image/logo.png" alt="BYD Logo" class="h-10 w-auto">
-    </div>
-    <ul class="flex space-x-10 text-lg">
-      <li><a href="index.html" class="hover:text-cyan-400 transition">Home</a></li>
-      <li><a href="models.html" class="hover:text-cyan-400 transition">Models</a></li>
-      <li><a href="about.html" class="hover:text-cyan-400 transition">About Us</a></li>
-      <li><a href="contact.html" class="text-cyan-400 font-semibold">Contact</a></li>
-    </ul>
-  </nav>
+    <div id="navbar"></div>
 
   <!-- Contact Section -->
   <section id="contact" class="min-h-screen flex items-center justify-center px-10 pt-40 pb-20">
@@ -233,65 +212,10 @@ footer p {
   </div>
 </section>
 
+<div id="footer"></div>
 
+<script src="assets/navbar.js"></script>
 
-
-<!-- Footer Section -->
-<footer class="bg-black text-gray-300 py-10">
-  <div class="container mx-auto px-6">
-    <div class="flex flex-col md:flex-row justify-between gap-8">
-
-      <!-- Logo & Description -->
-      <div class="flex-1">
-        <h2 class="text-cyan-400 text-2xl font-bold mb-3">BYD Motors</h2>
-        <p class="text-gray-400 text-sm">
-          Pioneering the future of electric mobility with innovation, style, and sustainability.
-        </p>
-      </div>
-
-      <!-- Quick Links -->
-      <div class="flex-1">
-        <h3 class="text-white font-semibold mb-3">Quick Links</h3>
-        <ul class="space-y-2 text-gray-400">
-          <li><a href="index.html" class="hover:text-cyan-400 transition-colors">Home</a></li>
-          <li><a href="models.html" class="hover:text-cyan-400 transition-colors">Models</a></li>
-          <li><a href="about.html" class="hover:text-cyan-400 transition-colors">About Us</a></li>
-          <li><a href="contact.html" class="hover:text-cyan-400 transition-colors">Contact</a></li>
-        </ul>
-      </div>
-
-      <!-- Contact & Social -->
-      <div class="flex-1">
-        <h3 class="text-white font-semibold mb-3">Contact</h3>
-        <p class="text-gray-400 text-sm mb-3">
-          123 Electric Ave, City, Country<br>
-          tarfeb@gmail.com<br>
-          +123 456 7890
-        </p>
-        <div class="flex gap-4">
-          <a href="#" class="text-gray-400 hover:text-cyan-400 transition-colors">
-            <i data-lucide="facebook" class="w-5 h-5"></i>
-          </a>
-          <a href="#" class="text-gray-400 hover:text-cyan-400 transition-colors">
-            <i data-lucide="twitter" class="w-5 h-5"></i>
-          </a>
-          <a href="#" class="text-gray-400 hover:text-cyan-400 transition-colors">
-            <i data-lucide="instagram" class="w-5 h-5"></i>
-          </a>
-          <a href="#" class="text-gray-400 hover:text-cyan-400 transition-colors">
-            <i data-lucide="linkedin" class="w-5 h-5"></i>
-          </a>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- Footer Bottom -->
-    <div class="mt-10 border-t border-gray-700 pt-6 text-center text-gray-500 text-sm">
-      &copy; 2025 BYD Motors. All rights reserved.
-    </div>
-  </div>
-</footer>
 
 <!-- Tambahkan ini di bawah body agar ikon lucide muncul -->
 <script src="https://unpkg.com/lucide@latest"></script>
