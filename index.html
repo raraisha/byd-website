@@ -4,14 +4,211 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>BYD - Build Your Dreams</title>
-  <link rel="stylesheet" href="assets/style.css">  
-  <link rel="icon" type="image/byd-logo.png" href="image/byd-logo.png">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/three.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #000108, #152E4D);
+      min-height: 100vh;
+      font-family: 'Poppins', sans-serif;
+      overflow-x: hidden;
+    }
+
+    .nav-glow {
+      box-shadow: 0 0 25px rgba(0, 255, 255, 0.5);
+      backdrop-filter: blur(10px);
+    }
+
+    .fade {
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .neon-text {
+      text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
+    }
+
+    .active-line {
+      background-color: #00ffff;
+      box-shadow: 0 0 10px #00ffff;
+    }
+
+    .electric-glazed {
+      background: linear-gradient(
+        90deg,
+        rgba(0, 255, 255, 0.1) 0%,
+        rgba(0, 255, 255, 0.8) 50%,
+        rgba(0, 255, 255, 0.1) 100%
+      );
+      background-size: 200% auto;
+      color: transparent;
+      -webkit-background-clip: text;
+      background-clip: text;
+      animation: glazeFlow 7s linear infinite;
+    }
+
+    /* Animasi glaze menyapu dari kiri ke kanan */
+    @keyframes glazeFlow {
+      0% {
+        background-position: 200% 0;
+      }
+      100% {
+        background-position: -200% 0;
+      }
+    }
+
+    .innovation-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(0, 255, 255, 0.1);
+      border-radius: 1.5rem;
+      padding: 3rem 1.5rem;
+      backdrop-filter: blur(10px);
+      transform: translateY(60px);
+      opacity: 0;
+      transition: all 1s ease;
+    }
+
+    .innovation-card.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .innovation-card:hover {
+      transform: translateY(-10px) scale(1.02);
+      border-color: rgba(0, 255, 255, 0.3);
+      box-shadow: 0 0 25px rgba(0, 255, 255, 0.15);
+    }
+
+    /* Icon Wrapper Animation */
+    .icon-wrap {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle, rgba(0,255,255,0.15), rgba(0,255,255,0));
+      border-radius: 50%;
+      width: 100px;
+      height: 100px;
+      margin: 0 auto;
+      transition: transform 0.6s ease;
+    }
+
+    .group:hover .icon-wrap {
+      transform: rotate(10deg) scale(1.1);
+    }
+
+    /* Floating Dots Background */
+    .floating-dots::before,
+    .floating-dots::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(0,255,255,0.15);
+      filter: blur(15px);
+      animation: floatDots 12s ease-in-out infinite alternate;
+    }
+    .floating-dots::before {
+      top: 30%;
+      left: 10%;
+      width: 120px;
+      height: 120px;
+    }
+    .floating-dots::after {
+      bottom: 20%;
+      right: 15%;
+      width: 180px;
+      height: 180px;
+    }
+    @keyframes floatDots {
+      0% { transform: translateY(0) scale(1); opacity: 0.8; }
+      100% { transform: translateY(-50px) scale(1.2); opacity: 0.5; }
+    }
+
+    /* === Background Tunnel === */
+    #warpTunnel {
+      position: absolute;
+      inset: 0;
+      display: block;
+      z-index: 0;
+      background: radial-gradient(circle at center, #000014 0%, #000006 100%);
+    }
+
+    #performance > *:not(canvas) {
+      position: relative;
+      z-index: 5;
+    }
+
+    /* === Glaze Text (Reuse from Hero) === */
+    .glaze-text {
+      background: linear-gradient(90deg, rgba(0,255,255,0.2) 0%, rgba(0,255,255,1) 50%, rgba(0,255,255,0.2) 100%);
+      background-size: 200% auto;
+      color: transparent;
+      -webkit-background-clip: text;
+      background-clip: text;
+      animation: glazeFlow 3s linear infinite;
+    }
+    
+    @keyframes glazeFlow {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    .text-cyan {
+      color: #00e5ff;
+    }
+
+    /* === Card Inner Default === */
+    .model-card-inner {
+      border-radius: 1rem;
+      background: #0f0f17;
+      padding: 1rem;
+      overflow: visible;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* === Hover Effect: Scale + Glow === */
+    .group:hover .model-card-inner {
+      transform: scale(1.05);
+      box-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
+    }
+
+.stroke-card rect {
+  stroke-width: 2;
+  fill: none;
+  stroke: url(#grad1);
+  stroke-dasharray: 400 400; /* 2 garis panjang: panjang garis & gap */
+  stroke-dashoffset: 0;
+  opacity: 0; /* default: tidak terlihat */
+  filter: drop-shadow(0 0 2px #00ffff);
+  transition: opacity 0.3s ease, filter 0.3s ease;
+}
+
+.group:hover .stroke-card rect {
+  opacity: 1;
+  animation: neonLoop 4s linear infinite;
+  filter: drop-shadow(0 0 12px #00ffff) drop-shadow(0 0 8px #00ffff);
+}
+
+/* Animasi neon bergerak terus */
+@keyframes neonLoop {
+  0%   { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: 800; } /* dash + gap * 2 */
+}
+
+/* Hover effect pada card */
+.group:hover .model-card-inner {
+  transform: scale(1.05);
+  box-shadow: 0 0 25px #00ffff;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
   </style>
 </head>
 <body class="text-white">
@@ -287,9 +484,20 @@
 
 <div id="footer"></div>
 
-<script src="assets/navbar.js"></script>
 
   <script>
+        fetch("navbar.html")
+      .then(res => res.text())
+      .then(data => {
+        document.getElementById("navbar").innerHTML = data;
+        lucide.createIcons(); // aktifkan ikon setelah navbar dimuat
+      });
+        fetch("footer.html")
+    .then(res => res.text())
+    .then(data => {
+      document.getElementById("footer").innerHTML = data;
+      lucide.createIcons(); // aktifin ikon lucide
+    });
     lucide.createIcons();
     const cars = [
       {
