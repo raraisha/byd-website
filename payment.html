@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BYD - Payment</title>
+  <link rel="stylesheet" href="assets/style.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-[#0b0f19] text-white min-h-screen flex flex-col items-center justify-center px-6">
+
+  <!-- Order Summary -->
+  <div class="bg-[#111827] p-8 rounded-2xl shadow-2xl w-full max-w-lg">
+    <h2 class="text-3xl font-bold text-cyan-400 mb-6">Order Summary</h2>
+    <img src="image/byd-atto3.png" alt="BYD Atto 3" class="w-full rounded-xl mb-6 shadow-lg" />
+    <div class="space-y-2">
+      <p><span class="text-gray-400">Model:</span> <span class="text-cyan-400 font-semibold">BYD Atto 3</span></p>
+      <p><span class="text-gray-400">Color:</span> <span class="text-cyan-400 font-semibold">Sky White</span></p>
+      <p><span class="text-gray-400">Type:</span> <span class="text-cyan-400 font-semibold">Advanced</span></p>
+      <p><span class="text-gray-400">Price:</span> <span class="text-cyan-400 font-semibold">$33,000</span></p>
+    </div>
+
+    <!-- Payment Option -->
+    <div class="mt-6">
+      <label class="block text-gray-400 mb-2">Payment Method</label>
+      <select id="payment-method" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-2">
+        <option value="">Select a payment method</option>
+        <option value="qris">QRIS</option>
+        <option value="va">Virtual Account</option>
+        <option value="card">Credit/Debit Card</option>
+        <option value="ewallet">E-Wallet</option>
+      </select>
+    </div>
+
+    <!-- Full / DP -->
+    <div class="mt-6">
+      <label class="block text-gray-400 mb-2">Payment Type</label>
+      <div class="flex gap-4">
+        <label class="flex items-center gap-2">
+          <input type="radio" name="paymentType" value="full" class="text-cyan-500" checked>
+          <span>Full Payment</span>
+        </label>
+        <label class="flex items-center gap-2">
+          <input type="radio" name="paymentType" value="dp" class="text-cyan-500">
+          <span>Down Payment (30%)</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Place Order -->
+    <button 
+      id="place-order"
+      class="mt-8 w-full py-3 bg-cyan-500 hover:bg-cyan-600 text-white font-semibold rounded-lg transition"
+    >
+      Place Order
+    </button>
+  </div>
+
+  <!-- Payment Modal -->
+  <div id="payment-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+    <div class="bg-[#1a2234] p-8 rounded-2xl w-full max-w-md relative">
+      <button id="close-modal" class="absolute top-3 right-3 text-gray-400 hover:text-white">✕</button>
+      <div id="modal-content"></div>
+    </div>
+  </div>
+  
+<script src="assets/payment.js"></script>
+</body>
+</html>
