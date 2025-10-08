@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About BYD - Build Your Dreams</title>
+  
+  <!-- TailwindCSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+
+  <style>
+    body {
+      background: linear-gradient(135deg, #000108, #152E4D);
+      color: white;
+      font-family: 'Poppins', sans-serif;
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+    }
+
+    .electric-glazed {
+      background: linear-gradient(
+        90deg,
+        rgba(0, 255, 255, 0.1) 0%,
+        rgba(0, 255, 255, 0.8) 50%,
+        rgba(0, 255, 255, 0.1) 100%
+      );
+      background-size: 200% auto;
+      color: transparent;
+      -webkit-background-clip: text;
+      background-clip: text;
+      animation: glazeFlow 7s linear infinite;
+    }
+
+    @keyframes glazeFlow {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    .glaze-text {
+      background: linear-gradient(90deg, rgba(0,255,255,0.2), rgba(0,255,255,1), rgba(0,255,255,0.2));
+      background-size: 200% auto;
+      color: transparent;
+      -webkit-background-clip: text;
+      background-clip: text;
+      animation: glaze 3s linear infinite;
+    }
+
+    @keyframes glaze {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    .section {
+      padding: 6rem 1rem;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(0,255,255,0.1);
+      border-radius: 1.5rem;
+      padding: 2.5rem;
+      backdrop-filter: blur(10px);
+      transition: all 0.5s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 0 20px rgba(0,255,255,0.2);
+      border-color: rgba(0,255,255,0.3);
+    }
+
+   
+  </style>
+</head>
+
+<body>
+  <!-- Navbar -->
+
+   <div id="navbar"></div>
+
+  
+
+<!-- Hero Section -->
+<section 
+  id="home"
+  class="relative flex flex-col justify-center items-center text-center section h-screen overflow-hidden"
+  style="
+    background-image: url('image/about-byd.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  "
+>
+  <!-- Overlay -->
+  <div class="absolute inset-0 bg-black/40"></div>
+
+  <!-- Content -->
+  <div class="relative z-10 px-6" data-aos="fade-up" data-aos-duration="1000">
+    <h1 class="electric-glazed text-5xl md:text-6xl font-bold uppercase tracking-wide mb-6">
+      About BYD
+    </h1>
+    <p class="max-w-3xl text-gray-300 text-lg leading-relaxed mx-auto">
+      Founded in <span class="text-cyan-400 font-semibold">November 1994</span>, BYD is a high-tech company devoted to innovation for a better life.  
+      For nearly three decades, BYD has been a global leader in 
+      <span class="text-cyan-300">electronics, automotive, renewable energy</span>, and 
+      <span class="text-cyan-300">rail transit</span> industries.
+    </p>
+  </div>
+</section>
+
+
+
+
+  <!-- Section 1: Company Vision -->
+<section id="company" 
+  class="relative bg-cover bg-center bg-no-repeat section"
+  style="background-image: url('image/section1.png');"
+  data-aos="fade-up"
+>
+  <!-- Overlay gelap biar teks tetap jelas -->
+  <div class="absolute inset-0 bg-black/40"></div>
+
+  <div class="relative z-10 max-w-6xl mx-auto text-center py-24">
+    <h2 class="text-4xl md:text-5xl font-bold text-cyan-300/90 mb-12 glaze-text" data-aos="fade-down" data-aos-delay="100">
+      BYD’s Journey and Vision
+    </h2>
+
+    <p class="text-gray-300 leading-relaxed max-w-4xl mx-auto mb-14" data-aos="fade-up" data-aos-delay="200">
+      With a focus on <span class="text-cyan-400 font-semibold">energy acquisition, storage, and application</span>, 
+      BYD delivers comprehensive zero-emission energy solutions.  
+      As a publicly listed company on the Hong Kong and Shenzhen Stock Exchanges, BYD recorded revenue exceeding  
+      <span class="text-cyan-400 font-semibold">RMB 602 billion (USD 83 billion)</span> in 2023.
+    </p>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div class="card bg-white/5 backdrop-blur-sm p-8 rounded-2xl border border-cyan-400/20 hover:border-cyan-400/50 transition-all duration-500 shadow-lg hover:shadow-cyan-500/20" 
+           data-aos="zoom-in" data-aos-delay="300">
+        <i data-lucide="battery" class="w-10 h-10 text-cyan-400 mb-3 mx-auto"></i>
+        <h3 class="text-xl font-semibold mb-2 text-white">Renewable Energy</h3>
+        <p class="text-gray-300 text-sm">Advanced battery systems, energy storage solutions, and zero-emission electric vehicles.</p>
+      </div>
+
+      <div class="card bg-white/5 backdrop-blur-sm p-8 rounded-2xl border border-cyan-400/20 hover:border-cyan-400/50 transition-all duration-500 shadow-lg hover:shadow-cyan-500/20"
+           data-aos="zoom-in" data-aos-delay="400">
+        <i data-lucide="cpu" class="w-10 h-10 text-cyan-400 mb-3 mx-auto"></i>
+        <h3 class="text-xl font-semibold mb-2 text-white">Smart Technology</h3>
+        <p class="text-gray-300 text-sm">Integration of intelligent hardware and software for the vehicles of tomorrow.</p>
+      </div>
+
+      <div class="card bg-white/5 backdrop-blur-sm p-8 rounded-2xl border border-cyan-400/20 hover:border-cyan-400/50 transition-all duration-500 shadow-lg hover:shadow-cyan-500/20"
+           data-aos="zoom-in" data-aos-delay="500">
+        <i data-lucide="rocket" class="w-10 h-10 text-cyan-400 mb-3 mx-auto"></i>
+        <h3 class="text-xl font-semibold mb-2 text-white">Global Growth</h3>
+        <p class="text-gray-300 text-sm">Over 3 million new energy vehicles sold worldwide in 2023.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Section 2: Core Technologies -->
+<section id="technology" 
+  class="relative section bg-[#152E4D] overflow-hidden">
+
+  <!-- Glow background animation -->
+  <div class="absolute inset-0 opacity-20">
+    <div class="absolute w-[600px] h-[600px] bg-cyan-500/40 blur-[180px] rounded-full top-20 -left-40 animate-pulse-slow"></div>
+    <div class="absolute w-[500px] h-[500px] bg-blue-400/40 blur-[160px] rounded-full bottom-10 right-0 animate-pulse-slow delay-500"></div>
+  </div>
+
+  <!-- Sparkle animation -->
+  <div class="absolute inset-0 overflow-hidden pointer-events-none">
+    <div class="sparkle sparkle-1"></div>
+    <div class="sparkle sparkle-2"></div>
+    <div class="sparkle sparkle-3"></div>
+    <div class="sparkle sparkle-4"></div>
+    <div class="sparkle sparkle-5"></div>
+    <div class="sparkle sparkle-6"></div>
+  </div>
+
+  <div class="relative z-10 max-w-6xl mx-auto text-center py-24">
+    <h2 class="text-4xl md:text-5xl font-bold text-cyan-300/90 mb-20 glaze-text" data-aos="fade-down">
+      BYD’s Core Technologies
+    </h2>  
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+      
+      <!-- Card 1 -->
+      <div class="tech-card" data-aos="fade-right" data-aos-delay="100">
+        <div class="flex items-center space-x-4 mb-4">
+          <i data-lucide="battery-charging" class="w-8 h-8 text-cyan-400"></i>
+          <h3 class="text-2xl text-cyan-400 font-semibold">Blade Battery</h3>
+        </div>
+        <p class="text-gray-300 text-sm leading-relaxed">
+          The safest battery in the industry — passing nail penetration tests with a compression strength of 445 kN.  
+          Fast charging from 10% to 80% in just 33 minutes, with a range of up to 600 km and beyond.
+        </p>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="tech-card" data-aos="fade-left" data-aos-delay="200">
+        <div class="flex items-center space-x-4 mb-4">
+          <i data-lucide="cpu" class="w-8 h-8 text-cyan-400"></i>
+          <h3 class="text-2xl text-cyan-400 font-semibold">e-Platform 3.0</h3>
+        </div>
+        <p class="text-gray-300 text-sm leading-relaxed">
+          A pure electric platform with integrated safety systems, futuristic aerodynamics, and an 8-in-1 powertrain.  
+          Delivers 10% higher efficiency than competitors.
+        </p>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="tech-card" data-aos="fade-right" data-aos-delay="300">
+        <div class="flex items-center space-x-4 mb-4">
+          <i data-lucide="gauge" class="w-8 h-8 text-cyan-400"></i>
+          <h3 class="text-2xl text-cyan-400 font-semibold">DM-i & DM-p Hybrid Systems</h3>
+        </div>
+        <p class="text-gray-300 text-sm leading-relaxed">
+          Dual-mode hybrid systems deliver lightning-fast acceleration (0–100 km/h in 4.5s)  
+          with ultra-low fuel consumption — smooth and silent like a full EV.
+        </p>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="tech-card" data-aos="fade-left" data-aos-delay="400">
+        <div class="flex items-center space-x-4 mb-4">
+          <i data-lucide="zap" class="w-8 h-8 text-cyan-400"></i>
+          <h3 class="text-2xl text-cyan-400 font-semibold">Yisifang Platform (e⁴)</h3>
+        </div>
+        <p class="text-gray-300 text-sm leading-relaxed">
+          A four-motor independent drive system offering superior traction,  
+          precision control, and rapid adaptability across all terrains.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- Section 3: Achievements -->
+<section id="achievement" 
+  class="relative section bg-[#152E4D] text-center overflow-hidden">
+
+  <!-- Glowing and sparkles -->
+  <div class="absolute inset-0 overflow-hidden opacity-30">
+    <div class="absolute w-[500px] h-[500px] bg-cyan-400/40 blur-[150px] rounded-full top-10 left-10 animate-glow-fade"></div>
+    <div class="absolute w-[400px] h-[400px] bg-blue-500/30 blur-[120px] rounded-full bottom-0 right-20 animate-glow-fade delay-700"></div>
+  </div>
+
+  <!-- Sparkles -->
+  <div class="absolute inset-0 overflow-hidden pointer-events-none">
+    <div class="sparkle sparkle-7"></div>
+    <div class="sparkle sparkle-8"></div>
+    <div class="sparkle sparkle-9"></div>
+    <div class="sparkle sparkle-10"></div>
+  </div>
+
+  <div class="relative z-10 max-w-5xl mx-auto px-4">
+    <h2 class="text-4xl md:text-5xl font-bold text-cyan-300/90 mb-10 glaze-text" data-aos="fade-up">
+      Achievements & Environmental Impact
+    </h2> 
+
+    <p class="text-gray-300 max-w-3xl mx-auto mb-16 leading-relaxed" data-aos="fade-up" data-aos-delay="100">
+      On July 4, 2024, BYD became the first new energy vehicle manufacturer in the world  
+      to produce its <span class="text-cyan-400 font-semibold">8 millionth NEV</span>.  
+      By November 2023, BYD had reduced more than  
+      <span class="text-cyan-400 font-semibold">44 billion kg of CO₂ emissions</span> — equivalent to planting  
+      <span class="text-cyan-400 font-semibold">740 million trees</span>.
+    </p>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-10 mb-12">
+      <div class="achievement-card" data-aos="zoom-in" data-aos-delay="200">
+        <h3 class="text-xl text-cyan-400 font-semibold mb-2">C-NCAP</h3>
+        <p class="text-gray-400 text-sm">BYD SEAL achieved the highest safety rating.</p>
+      </div>
+      <div class="achievement-card" data-aos="zoom-in" data-aos-delay="300">
+        <h3 class="text-xl text-cyan-400 font-semibold mb-2">Euro NCAP & ANCAP</h3>
+        <p class="text-gray-400 text-sm">BYD ATTO 3, DOLPHIN, and SEAL received 5-star ratings.</p>
+      </div>
+      <div class="achievement-card" data-aos="zoom-in" data-aos-delay="400">
+        <h3 class="text-xl text-cyan-400 font-semibold mb-2">Green NCAP</h3>
+        <p class="text-gray-400 text-sm">BYD ATTO 3 and DOLPHIN earned 5-star environmental ratings.</p>
+      </div>
+    </div>
+
+    <div class="relative h-[2px] w-3/4 mx-auto bg-gradient-to-r from-transparent via-cyan-400 to-transparent animate-scan-line"></div>
+  </div>
+</section>
+
+<div id="footer"></div>
+<script src="assets/navbar.js"></script>
+
+<style>
+  /* Glow background */
+  @keyframes pulse-slow {
+    0%, 100% { opacity: 0.4; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.1); }
+  }
+  .animate-pulse-slow {
+    animation: pulse-slow 8s ease-in-out infinite;
+  }
+
+  @keyframes glow-fade {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.1); }
+  }
+  .animate-glow-fade {
+    animation: glow-fade 10s ease-in-out infinite;
+  }
+
+  @keyframes scan-line {
+    0% { transform: translateX(-100%); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: translateX(100%); opacity: 0; }
+  }
+  .animate-scan-line {
+    animation: scan-line 6s linear infinite;
+  }
+
+  /* Sparkle animation */
+  @keyframes sparkle {
+    0%, 100% { opacity: 0; transform: scale(0); }
+    50% { opacity: 1; transform: scale(1.2); }
+  }
+  .sparkle {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: rgba(0,255,255,0.6);
+    border-radius: 50%;
+    animation: sparkle 3s infinite ease-in-out;
+  }
+  .sparkle-1 { top: 20%; left: 10%; animation-delay: 0s; }
+  .sparkle-2 { top: 40%; left: 70%; animation-delay: 1s; }
+  .sparkle-3 { top: 60%; left: 30%; animation-delay: 2s; }
+  .sparkle-4 { top: 80%; left: 50%; animation-delay: 1.5s; }
+  .sparkle-5 { top: 10%; left: 80%; animation-delay: 2.5s; }
+  .sparkle-6 { top: 50%; left: 20%; animation-delay: 3s; }
+  .sparkle-7 { top: 30%; left: 40%; animation-delay: 1.3s; }
+  .sparkle-8 { top: 70%; left: 60%; animation-delay: 2.8s; }
+  .sparkle-9 { top: 50%; left: 80%; animation-delay: 0.8s; }
+  .sparkle-10 { top: 80%; left: 15%; animation-delay: 3.5s; }
+
+  /* Cards */
+  .tech-card, .achievement-card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(0,255,255,0.15);
+    border-radius: 1.25rem;
+    padding: 2rem;
+    backdrop-filter: blur(10px);
+    transition: all 0.5s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .tech-card::before, .achievement-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(0,255,255,0.3), transparent, rgba(0,255,255,0.3));
+    opacity: 0;
+    transform: translateX(-100%);
+    transition: all 0.6s ease;
+  }
+
+  .tech-card:hover::before, .achievement-card:hover::before {
+    opacity: 0.8;
+    transform: translateX(100%);
+  }
+
+  .tech-card:hover, .achievement-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 0 25px rgba(0,255,255,0.3);
+    border-color: rgba(0,255,255,0.5);
+  }
+</style>
+
+  <!-- Scripts -->
+  <script>
+    lucide.createIcons();
+    AOS.init({ duration: 1000, once: true });
+      fetch("navbar.html")
+      .then(res => res.text())
+      .then(data => {
+        document.getElementById("navbar").innerHTML = data;
+        lucide.createIcons(); // aktifkan ikon setelah navbar dimuat
+      });
+        fetch("footer.html")
+    .then(res => res.text())
+    .then(data => {
+      document.getElementById("footer").innerHTML = data;
+      lucide.createIcons(); // aktifin ikon lucide
+    });
+    
+  </script>
+</body>
+</html>
+

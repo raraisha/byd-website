@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register | BYD Motors</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: radial-gradient(circle at top, #050505, #000);
+      color: white;
+      overflow: hidden;
+    }
+
+    /* Animasi bintang */
+    .stars, .stars2, .stars3 {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      background: transparent;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .stars::after, .stars2::after, .stars3::after {
+      content: "";
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: transparent url('https://www.transparenttextures.com/patterns/stardust.png') repeat;
+    }
+
+    .stars {
+      animation: moveStars 100s linear infinite;
+      opacity: 0.4;
+    }
+
+    .stars2 {
+      animation: moveStars 200s linear infinite;
+      opacity: 0.3;
+    }
+
+    .stars3 {
+      animation: moveStars 300s linear infinite;
+      opacity: 0.2;
+    }
+
+    @keyframes moveStars {
+      from { transform: translateY(0px); }
+      to { transform: translateY(-1000px); }
+    }
+
+    /* Input style */
+    .input-field {
+      background-color: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: 0.3s;
+    }
+    .input-field:focus {
+      border-color: rgba(0, 255, 255, 0.7);
+      outline: none;
+      box-shadow: 0 0 8px rgba(0, 255, 255, 0.3);
+    }
+
+    /* Glow form */
+    .form-container {
+      position: relative;
+      z-index: 1;
+      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(0,255,255,0.2);
+      box-shadow: 0 0 25px rgba(0,255,255,0.15);
+      backdrop-filter: blur(10px);
+      transition: 0.3s;
+    }
+
+    .form-container:hover {
+      box-shadow: 0 0 35px rgba(0,255,255,0.3);
+    }
+
+    button:hover {
+      box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+      transform: translateY(-2px);
+    }
+
+        .back-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background-color: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #06b6d4;
+      padding: 8px 14px;
+      border-radius: 12px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .back-btn:hover {
+      background-color: rgba(6, 182, 212, 0.2);
+      transform: scale(1.05);
+    }
+
+          /* Hilangkan warna putih saat autofill */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.1) inset !important;
+  -webkit-text-fill-color: white !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center relative">
+
+  <div class="stars"></div>
+  <div class="stars2"></div>
+  <div class="stars3"></div>
+
+  <!-- Tombol Back -->
+  
+    <button onclick="window.location.href='index.html'" class="back-btn flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition">
+  <i data-lucide="arrow-left" class="w-5 h-5"></i>
+  <span>Back</span>
+</button>
+
+
+
+  <!-- Register Form -->
+  <div class="form-container rounded-2xl p-10 w-[400px] shadow-lg">
+    <div class="flex flex-col items-center mb-8">
+      <img src="image/logo.png" alt="BYD Logo" class="h-14 w-auto mb-4">
+      <h1 class="text-2xl font-semibold text-cyan-400">Create Account</h1>
+      <p class="text-gray-400 text-sm mt-1">Join the BYD family today</p>
+    </div>
+
+    <form action="#" method="POST" class="space-y-5">
+      <div>
+        <label class="block text-sm mb-2 text-gray-300">Full Name</label>
+        <div class="flex items-center space-x-2 input-field px-4 py-3 rounded-xl">
+          <i data-lucide="user" class="w-4 h-4 text-gray-300"></i>
+          <input type="text" name="name" required
+            class="w-full bg-transparent focus:outline-none text-sm text-white placeholder-gray-400"
+            placeholder="Enter your full name">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm mb-2 text-gray-300">Email</label>
+        <div class="flex items-center space-x-2 input-field px-4 py-3 rounded-xl">
+          <i data-lucide="mail" class="w-4 h-4 text-gray-300"></i>
+          <input type="email" name="email" required
+            class="w-full bg-transparent focus:outline-none text-sm text-white placeholder-gray-400"
+            placeholder="Enter your email">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm mb-2 text-gray-300">Password</label>
+        <div class="flex items-center space-x-2 input-field px-4 py-3 rounded-xl">
+          <i data-lucide="lock" class="w-4 h-4 text-gray-300"></i>
+          <input type="password" name="password" required
+            class="w-full bg-transparent focus:outline-none text-sm text-white placeholder-gray-400"
+            placeholder="Create a password">
+        </div>
+      </div>
+
+      <button type="submit"
+        class="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-semibold py-3 rounded-xl transition">
+        Register
+      </button>
+
+      <p class="text-center text-gray-400 text-sm mt-4">
+        Already have an account?
+        <a href="login.html" class="text-cyan-400 hover:underline">Login</a>
+      </p>
+    </form>
+  </div>
+
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>

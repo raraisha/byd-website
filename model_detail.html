@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BYD - Build Your Dreams</title>
+    <link rel="stylesheet" href="assets/style.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body class="text-white">
+    <!-- Navbar -->
+    <nav
+      class="fixed top-6 left-1/2 transform -translate-x-1/2 w-[1200px] bg-black/50 nav-glow flex justify-between items-center px-10 py-3 z-50 rounded-full"
+    >
+      <div class="flex items-center space-x-2">
+        <img src="image/logo.png" alt="BYD Logo" class="h-10 w-auto" />
+      </div>
+      <ul class="flex space-x-10 text-lg">
+        <li>
+          <a href="index.html" class="hover:text-cyan-400 transition">Home</a>
+        </li>
+        <li>
+          <a href="models.html" class="hover:text-cyan-400 transition"
+            >Models</a
+          >
+        </li>
+        <li>
+          <a href="#" class="hover:text-cyan-400 transition">Technology</a>
+        </li>
+        <li><a href="#" class="hover:text-cyan-400 transition">Contact</a></li>
+      </ul>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <section
+      class="pt-40 pb-20 px-10 bg-gradient-to-b from-[#000108] to-[#13223b]"
+    >
+
+    <!-- Tombol Back -->
+  <button
+    onclick="history.back()"
+    class="absolute top-25 left-40 flex items-center gap-2 text-cyan-400 hover:text-white font-semibold border border-cyan-500/40 hover:border-cyan-400 transition-all duration-300 px-4 py-2 rounded-lg bg-[#0a0f1c]/40 backdrop-blur-sm"
+  >
+    <i data-lucide="arrow-left" class="w-5 h-5"></i>
+    Back
+  </button>
+  
+      <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-5">
+        <!-- Gambar Mobil -->
+        <div class="flex-1">
+          <img
+            id="car-image"
+            src="image/byd-atto3.png"
+            alt="BYD Atto 3"
+            class="w-full rounded-2xl shadow-lg transition-all duration-500"
+          />
+        </div>
+
+        <!-- Palet Warna dan Info -->
+        <div class="flex-1 space-y-5">
+          <h1 class="text-4xl font-bold text-cyan-400">BYD Atto 3</h1>
+          <p class="text-gray-400 text-lg">
+            Compact SUV blending efficiency and style.
+          </p>
+
+          <!-- Palet Warna -->
+          <div>
+            <h3 class="font-semibold mb-4 text-gray-300">Available Colors</h3>
+            <div class="flex gap-3">
+              <button
+                data-color="Sky White"
+                data-img="image/byd-atto3.png"
+                class="w-10 h-10 rounded-full bg-[#f1f1f1] border-2 border-transparent hover:border-white transition"
+              ></button>
+              <button
+                data-color="Surf Blue"
+                data-img="image/byd-atto3-blue.png"
+                class="w-10 h-10 rounded-full bg-[#3bb6e5] border-2 border-transparent hover:border-white transition"
+              ></button>
+              <button
+                data-color="Boulder Grey"
+                data-img="image/byd-atto3-grey.png"
+                class="w-10 h-10 rounded-full bg-[#7a7c83] border-2 border-transparent hover:border-white transition"
+              ></button>
+              <button
+                data-color="Cosmos Black"
+                data-img="image/byd-atto3-black.png"
+                class="w-10 h-10 rounded-full bg-[#0d0d0f] border-2 border-transparent hover:border-white transition"
+              ></button>
+            </div>
+            <p class="mt-4 text-sm text-gray-400">
+              Selected color:
+              <span id="selected-color" class="text-cyan-400">Sky White</span>
+            </p>
+          </div>
+
+          <!-- Pilihan Tipe -->
+          <div>
+            <h3 class="font-semibold mb-4 text-gray-300">Choose Type</h3>
+            <select
+              id="car-type"
+              class="bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 w-full text-white"
+            >
+              <option value="advanced">Advanced</option>
+              <option value="superior">Superior</option>
+            </select>
+          </div>
+
+          <!-- Info Harga -->
+          <div class="mt-4">
+            <p class="text-xl font-semibold text-cyan-400">
+              Start from <span id="car-price">$33,000</span>
+            </p>
+            <p class="text-gray-400 text-sm mt-1">
+              Stock available:
+              <span id="car-stock" class="text-white">12</span> units
+            </p>
+          </div>
+
+          <button
+            class="btn-gradient w-full py-3 rounded-lg font-semibold mt-4"
+          >
+            Order Now
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- DETAIL MOBIL MODERN -->
+    <section
+      id="specifications"
+      class="relative bg-gradient-to-b from-[#050810] to-[#0a0f1c] py-20 px-8 overflow-hidden"
+    >
+      <div
+        class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(0,255,255,0.1),transparent_60%)]"
+      ></div>
+
+      <div class="max-w-6xl mx-auto relative z-10">
+        <h2
+          class="text-4xl md:text-5xl font-bold text-cyan-300/90 text-center mb-12 glaze-text"
+        >
+          Vehicle Specifications
+        </h2>
+
+        <!-- GRID -->
+        <div id="spec-grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <!-- Card 1 -->
+          <div class="spec-card group">
+            <i
+              data-lucide="car"
+              class="w-10 h-10 text-cyan-400 mb-4 transition-transform duration-300 group-hover:scale-110"
+            ></i>
+            <h3 class="text-xl font-semibold mb-1">Tipe</h3>
+            <p class="text-gray-400">Compact SUV</p>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="spec-card group">
+            <i
+              data-lucide="layers"
+              class="w-10 h-10 text-cyan-400 mb-4 transition-transform duration-300 group-hover:scale-110"
+            ></i>
+            <h3 class="text-xl font-semibold mb-1">Varian</h3>
+            <p class="text-gray-400">Advanced / Superior</p>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="spec-card group">
+            <i
+              data-lucide="battery-charging"
+              class="w-10 h-10 text-cyan-400 mb-4 transition-transform duration-300 group-hover:scale-110"
+            ></i>
+            <h3 class="text-xl font-semibold mb-1">Baterai</h3>
+            <p class="text-gray-400">60.5 kWh Blade Battery</p>
+          </div>
+
+          <!-- Card 4 -->
+          <div class="spec-card group">
+            <i
+              data-lucide="gauge"
+              class="w-10 h-10 text-cyan-400 mb-4 transition-transform duration-300 group-hover:scale-110"
+            ></i>
+            <h3 class="text-xl font-semibold mb-1">Jarak Tempuh</h3>
+            <p class="text-gray-400">420 km (WLTP)</p>
+          </div>
+
+          <!-- Card 5 -->
+          <div class="spec-card group">
+            <i
+              data-lucide="zap"
+              class="w-10 h-10 text-cyan-400 mb-4 transition-transform duration-300 group-hover:scale-110"
+            ></i>
+            <h3 class="text-xl font-semibold mb-1">Tenaga Motor</h3>
+            <p class="text-gray-400">150 kW (201 hp)</p>
+          </div>
+
+          <!-- Card 6 -->
+          <div class="spec-card group">
+            <i
+              data-lucide="timer"
+              class="w-10 h-10 text-cyan-400 mb-4 transition-transform duration-300 group-hover:scale-110"
+            ></i>
+            <h3 class="text-xl font-semibold mb-1">Akselerasi</h3>
+            <p class="text-gray-400">0–100 km/h in 7.3 s</p>
+          </div>
+
+          <!-- Card 7 -->
+          <div class="spec-card group">
+            <i
+              data-lucide="plug-zap"
+              class="w-10 h-10 text-cyan-400 mb-4 transition-transform duration-300 group-hover:scale-110"
+            ></i>
+            <h3 class="text-xl font-semibold mb-1">Pengisian</h3>
+            <p class="text-gray-400">DC Fast Charging (30–80% in 29 min)</p>
+          </div>
+
+          <!-- Card 8 -->
+          <div class="spec-card group">
+            <i
+              data-lucide="users"
+              class="w-10 h-10 text-cyan-400 mb-4 transition-transform duration-300 group-hover:scale-110"
+            ></i>
+            <h3 class="text-xl font-semibold mb-1">Kapasitas Penumpang</h3>
+            <p class="text-gray-400">5 orang</p>
+          </div>
+
+          <!-- Card 9 -->
+          <div class="spec-card group">
+            <i
+              data-lucide="calendar"
+              class="w-10 h-10 text-cyan-400 mb-4 transition-transform duration-300 group-hover:scale-110"
+            ></i>
+            <h3 class="text-xl font-semibold mb-1">Tahun Produksi</h3>
+            <p class="text-gray-400">2025</p>
+          </div>
+        </div>
+
+        <!-- Deskripsi -->
+        <div class="mt-16 text-center max-w-3xl mx-auto">
+          <p class="text-gray-400 leading-relaxed text-lg">
+            <span class="text-cyan-400 font-semibold">BYD Atto 3</span>
+            menghadirkan efisiensi luar biasa dengan desain futuristik, interior
+            ergonomis, dan teknologi canggih. Dirancang untuk pengemudi modern
+            yang mencari keseimbangan antara kenyamanan, performa, dan
+            keberlanjutan.
+          </p>
+        </div>
+      </div>
+    </section>
+    <section class="bg-[#050913] py-16 px-10 -z-10">
+      <h2 class="text-3xl font-bold text-center text-cyan-400 mb-8">
+        3D Model Viewer
+      </h2>
+      <div
+        id="viewer-container"
+        class="mx-auto w-full h-[600px] rounded-2xl overflow-hidden shadow-xl border border-cyan-700/30 z-20"
+      ></div>
+    </section>
+    <script src="assets/modelDetail.js"></script>
+    <script type="module" src="assets/modelViewer.js"></script>
+  </body>
+</html>
