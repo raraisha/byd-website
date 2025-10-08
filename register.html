@@ -108,6 +108,16 @@
       background-color: rgba(6, 182, 212, 0.2);
       transform: scale(1.05);
     }
+
+          /* Hilangkan warna putih saat autofill */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.1) inset !important;
+  -webkit-text-fill-color: white !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
   </style>
 </head>
 <body class="min-h-screen flex items-center justify-center relative">
