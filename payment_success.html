@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BYD - Payment Success</title>
+  <link rel="stylesheet" href="assets/style.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"> </script>
+</head>
+<body class="text-white relative">
+<section class="min-h-screen flex flex-col justify-center items-center bg-gradient-to-b from-[#000108] to-[#13223b] text-white px-6">
+  <div class="innovation-card show p-10 rounded-3xl shadow-xl max-w-md text-center">
+    <i data-lucide="check-circle" class="w-20 h-20 text-green-400 mx-auto mb-6"></i>
+    <h1 class="text-3xl font-bold text-green-400 mb-3">Payment Successful!</h1>
+    <p class="text-gray-400 mb-8">Your payment has been confirmed. Thank you for purchasing your BYD vehicle.</p>
+
+    <div class="bg-gray-800 rounded-xl p-4 text-left text-sm space-y-2 mb-6">
+      <p><span class="text-gray-500">Order ID:</span> <span id="order-id" class="text-cyan-400"></span></p>
+      <p><span class="text-gray-500">Model:</span> <span id="order-model" class="text-cyan-400">BYD Atto 3</span></p>
+      <p><span class="text-gray-500">Payment Method:</span> <span id="order-method" class="text-cyan-400"></span></p>
+      <p><span class="text-gray-500">Status:</span> <span class="text-green-400 font-semibold">Paid</span></p>
+    </div>
+
+    <div class="flex flex-col gap-3">
+      <a href="order_summary.html" class="btn-gradient-green py-2 rounded-xl font-semibold">View Order Details</a>
+      <a href="index.html" class="btn-gradient-neutral py-2 rounded-xl font-semibold">Back to Home</a>
+    </div>
+  </div>
+</section>
+<script src="assets/paymentSuccess.js"></script>
+
+</body>
+</html>
