@@ -207,6 +207,17 @@
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
+
+footer {
+  background-color: #000000; /* hitam pekat */
+  border-top: 2px solid rgba(0, 255, 255, 0.3); /* garis cyan lembut di atas */
+  box-shadow: 0 -5px 25px rgba(0, 255, 255, 0.15); /* efek glow ke atas */
+}
+footer p {
+  color: #a3faff;
+  text-shadow: 0 0 8px rgba(0,255,255,0.5);
+}
+
   </style>
 </head>
 <body class="text-white">
@@ -216,12 +227,12 @@
     <div class="flex items-center space-x-2">
       <img src="image/logo.png" alt="BYD Logo" class="h-10 w-auto">
     </div>
-    <ul class="flex space-x-10 text-lg">
-      <li><a href="#" class="hover:text-cyan-400 transition">Home</a></li>
-      <li><a href="#" class="hover:text-cyan-400 transition">Models</a></li>
-      <li><a href="#" class="hover:text-cyan-400 transition">Technology</a></li>
-      <li><a href="#" class="hover:text-cyan-400 transition">Contact</a></li>
-    </ul>
+    <ul class="flex space-x-10 text-lg text-white">
+  <li><a href="index.html" class="hover:text-cyan-400 transition">Home</a></li>
+  <li><a href="models.html" class="hover:text-cyan-400 transition">Models</a></li>
+  <li><a href="about.html" class="hover:text-cyan-400 transition">About Us</a></li>
+  <li><a href="contact.html" class="hover:text-cyan-400 transition">Contact</a></li>
+</ul>
   </nav>
 
 <!-- Hero Section -->
@@ -491,7 +502,7 @@
 </section>
 
 <!-- Footer Section -->
-<footer class="bg-[#0a0a0f] text-gray-300 py-10">
+<footer class="bg-black text-gray-300 py-10">
   <div class="container mx-auto px-6">
     <div class="flex flex-col md:flex-row justify-between gap-8">
 
@@ -507,10 +518,10 @@
       <div class="flex-1">
         <h3 class="text-white font-semibold mb-3">Quick Links</h3>
         <ul class="space-y-2 text-gray-400">
-          <li><a href="#" class="hover:text-cyan-400 transition-colors">Home</a></li>
-          <li><a href="#" class="hover:text-cyan-400 transition-colors">Models</a></li>
-          <li><a href="#" class="hover:text-cyan-400 transition-colors">About Us</a></li>
-          <li><a href="#" class="hover:text-cyan-400 transition-colors">Contact</a></li>
+          <li><a href="index.html" class="hover:text-cyan-400 transition-colors">Home</a></li>
+          <li><a href="models.html" class="hover:text-cyan-400 transition-colors">Models</a></li>
+          <li><a href="about.html" class="hover:text-cyan-400 transition-colors">About Us</a></li>
+          <li><a href="contact.html" class="hover:text-cyan-400 transition-colors">Contact</a></li>
         </ul>
       </div>
 
@@ -547,6 +558,13 @@
   </div>
 </footer>
 
+<!-- Tambahkan ini di bawah body agar ikon lucide muncul -->
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+  lucide.createIcons();
+</script>
+
+ <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 
   <script>
     lucide.createIcons();
