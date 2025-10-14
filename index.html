@@ -4,13 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>BYD - Build Your Dreams</title>
-  <link rel="stylesheet" href="assets/style.css">  
-  <link rel="icon" type="image/byd-logo.png" href="image/byd-logo.png">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/three.min.js"></script>
+  <script type="module" src="login.js"></script>
+  <script src="scripts/loadNavbar.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
@@ -486,7 +486,6 @@
 
 <div id="footer"></div>
 
-<script src="assets/navbar.js"></script>
 
   <script>
         fetch("navbar.html")
@@ -725,8 +724,39 @@
 
 
   animate();
-
 </script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const authButtons = document.getElementById("authButtons")
+    const userSection = document.getElementById("userSection")
+    const navHistory = document.getElementById("navHistory")
+    const profileLink = document.getElementById("profileLink")
+    const logoutBtn = document.getElementById("logoutBtn")
+
+    const user = JSON.parse(localStorage.getItem("user")) // simpan data user pas login
+
+    if (user) {
+      // User login
+      authButtons.classList.add("hidden")
+      userSection.classList.remove("hidden")
+      navHistory.classList.remove("hidden")
+      profileLink.textContent = user.name || "User"
+    } else {
+      // Belum login
+      authButtons.classList.remove("hidden")
+      userSection.classList.add("hidden")
+      navHistory.classList.add("hidden")
+    }
+
+    // Logout
+    logoutBtn.addEventListener("click", () => {
+      localStorage.removeItem("user")
+      window.location.href = "login.html"
+    })
+  })
+</script>
+
 
 </body>
 </html>
