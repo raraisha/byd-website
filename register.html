@@ -1,21 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Register | BYD Motors</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Font & Tailwind -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
+
   <style>
     body {
       font-family: 'Poppins', sans-serif;
       background: radial-gradient(circle at top, #050505, #000);
       color: white;
       overflow: hidden;
+      min-height: 100vh;
     }
 
-    /* Animasi bintang */
     .stars, .stars2, .stars3 {
       position: fixed;
       width: 100%;
@@ -35,27 +38,15 @@
       background: transparent url('https://www.transparenttextures.com/patterns/stardust.png') repeat;
     }
 
-    .stars {
-      animation: moveStars 100s linear infinite;
-      opacity: 0.4;
-    }
-
-    .stars2 {
-      animation: moveStars 200s linear infinite;
-      opacity: 0.3;
-    }
-
-    .stars3 {
-      animation: moveStars 300s linear infinite;
-      opacity: 0.2;
-    }
+    .stars { animation: moveStars 100s linear infinite; opacity: 0.4; }
+    .stars2 { animation: moveStars 200s linear infinite; opacity: 0.3; }
+    .stars3 { animation: moveStars 300s linear infinite; opacity: 0.2; }
 
     @keyframes moveStars {
       from { transform: translateY(0px); }
       to { transform: translateY(-1000px); }
     }
 
-    /* Input style */
     .input-field {
       background-color: rgba(0,255,255,0.15);
       border: 1px solid rgba(255,255,255,0.2);
@@ -66,7 +57,6 @@
       box-shadow: 0 0 8px rgba(0,255,255,0.3);
     }
 
-    /* Glow form */
     .form-container {
       position: relative;
       z-index: 1;
@@ -76,12 +66,10 @@
       backdrop-filter: blur(10px);
       transition: 0.3s;
     }
-
     .form-container:hover {
       box-shadow: 0 0 35px rgba(0,255,255,0.3);
     }
 
-    /* Tombol back */
     .back-btn {
       position: absolute;
       top: 20px;
@@ -98,26 +86,26 @@
       align-items: center;
       gap: 6px;
     }
-
     .back-btn:hover {
       background: rgba(0,255,255,0.3);
       color: black;
     }
-
   </style>
 </head>
-<body class="min-h-screen flex items-center justify-center relative">
 
+<body class="flex items-center justify-center relative">
+
+  <!-- Animasi background -->
   <div class="stars"></div>
   <div class="stars2"></div>
   <div class="stars3"></div>
 
-  <!-- Tombol Back -->
+  <!-- Tombol back -->
   <a href="index.html" class="back-btn z-10">
     <i data-lucide="arrow-left" class="w-4 h-4"></i> Back
   </a>
 
-  <!-- Register Form -->
+  <!-- Form -->
   <div class="form-container rounded-2xl p-10 w-[400px] shadow-lg">
     <div class="flex flex-col items-center mb-8">
       <img src="image/logo.png" alt="BYD Logo" class="h-14 w-auto mb-4">
@@ -125,14 +113,12 @@
       <p class="text-gray-400 text-sm mt-1">Join the BYD family today</p>
     </div>
 
-    <form action="#" method="POST" class="space-y-5">
+    <form id="register-form" class="space-y-5">
       <div>
         <label class="block text-sm mb-2 text-gray-300">Full Name</label>
         <div class="flex items-center space-x-2 input-field px-4 py-3 rounded-xl">
           <i data-lucide="user" class="w-4 h-4 text-gray-300"></i>
-          <input type="text" name="name" required
-            class="w-full bg-transparent focus:outline-none text-sm text-white placeholder-gray-400"
-            placeholder="Enter your full name">
+          <input type="text" name="name" required class="w-full bg-transparent focus:outline-none text-sm text-white placeholder-gray-400" placeholder="Enter your full name">
         </div>
       </div>
 
@@ -140,9 +126,15 @@
         <label class="block text-sm mb-2 text-gray-300">Email</label>
         <div class="flex items-center space-x-2 input-field px-4 py-3 rounded-xl">
           <i data-lucide="mail" class="w-4 h-4 text-gray-300"></i>
-          <input type="email" name="email" required
-            class="w-full bg-transparent focus:outline-none text-sm text-white placeholder-gray-400"
-            placeholder="Enter your email">
+          <input type="email" name="email" required class="w-full bg-transparent focus:outline-none text-sm text-white placeholder-gray-400" placeholder="Enter your email">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm mb-2 text-gray-300">Phone Number</label>
+        <div class="flex items-center space-x-2 input-field px-4 py-3 rounded-xl">
+          <i data-lucide="phone" class="w-4 h-4 text-gray-300"></i>
+          <input type="number" name="no_telp" required class="w-full bg-transparent focus:outline-none text-sm text-white placeholder-gray-400" placeholder="Enter your phone number">
         </div>
       </div>
 
@@ -150,14 +142,11 @@
         <label class="block text-sm mb-2 text-gray-300">Password</label>
         <div class="flex items-center space-x-2 input-field px-4 py-3 rounded-xl">
           <i data-lucide="lock" class="w-4 h-4 text-gray-300"></i>
-          <input type="password" name="password" required
-            class="w-full bg-transparent focus:outline-none text-sm text-white placeholder-gray-400"
-            placeholder="Create a password">
+          <input type="password" name="password" required class="w-full bg-transparent focus:outline-none text-sm text-white placeholder-gray-400" placeholder="Create a password">
         </div>
       </div>
 
-      <button type="submit"
-        class="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-semibold py-3 rounded-xl transition">
+      <button type="submit" class="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-semibold py-3 rounded-xl transition">
         Register
       </button>
 
@@ -170,6 +159,47 @@
 
   <script>
     lucide.createIcons();
+  </script>
+
+  <!-- Supabase register -->
+  <script type="module">
+    import { supabase } from "./supabase.js";
+
+    const form = document.getElementById("register-form");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault(); // biar gak reload
+      console.log("Form submitted"); // cek di console
+
+      const name = form.name.value.trim();
+      const email = form.email.value.trim();
+      const no_telp = form.no_telp.value.trim();
+      const password = form.password.value.trim();
+
+      if (!name || !email || !no_telp || !password) {
+        alert("Semua field wajib diisi!");
+        return;
+      }
+
+      try {
+        const { error } = await supabase
+          .from("users")
+          .insert([{ name, email, no_telp, password }]);
+
+        if (error) {
+          console.error(error);
+          alert("Gagal mendaftar: " + error.message);
+          return;
+        }
+
+        alert("Registrasi berhasil! Silakan login.");
+        form.reset();
+        window.location.href = "login.html";
+      } catch (err) {
+        console.error(err);
+        alert("Terjadi kesalahan. Coba lagi nanti.");
+      }
+    });
   </script>
 </body>
 </html>

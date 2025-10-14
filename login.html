@@ -7,6 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script type="module" src="supabase.js"></script>
   <style>
     body {
       font-family: 'Poppins', sans-serif;
@@ -16,7 +17,6 @@
       color: white;
     }
 
-    /* canvas background */
     canvas#stars {
       position: fixed;
       top: 0;
@@ -31,6 +31,7 @@
       border: 1px solid rgba(255, 255, 255, 0.2);
       transition: 0.3s;
     }
+
     .input-field:focus {
       border-color: rgba(0, 255, 255, 0.7);
       outline: none;
@@ -38,10 +39,17 @@
     }
 
     .login-card {
-      background-color: rgba(0, 0, 0, 0.15);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(0, 255, 255, 0.3);
-      box-shadow: 0 0 25px rgba(0, 255, 255, 0.15);
+      position: relative;
+      z-index: 1;
+      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(0,255,255,0.2);
+      box-shadow: 0 0 25px rgba(0,255,255,0.15);
+      backdrop-filter: blur(10px);
+      transition: 0.3s;
+    }
+
+    .login-card:hover {
+      box-shadow: 0 0 35px rgba(0,255,255,0.3);
     }
 
     button:hover {
@@ -49,7 +57,11 @@
       transform: translateY(-2px);
     }
 
-        .back-btn {
+    .nav-glow {
+      box-shadow: 0 0 15px rgba(0,255,255,0.2);
+    }
+
+    .back-btn {
       position: absolute;
       top: 20px;
       left: 20px;
@@ -74,14 +86,16 @@
 </head>
 <body class="min-h-screen flex items-center justify-center relative">
 
-  <!-- Stars background -->
+  <!-- Background -->
   <canvas id="stars"></canvas>
-    <button onclick="history.back()" class="back-btn">
-    <i data-lucide="arrow-left"></i>
-    Back
+
+  <!-- Tombol Back -->
+  <button onclick="window.location.href='index.html'" class="back-btn flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition">
+    <i data-lucide="arrow-left" class="w-5 h-5"></i>
+    <span>Back</span>
   </button>
 
-  <!-- Login Card -->
+  <!-- Kartu Login -->
   <div class="login-card relative z-10 rounded-2xl p-10 w-[400px] shadow-lg">
     <div class="flex flex-col items-center mb-8">
       <img src="image/logo.png" alt="BYD Logo" class="h-14 w-auto mb-4">
@@ -89,18 +103,18 @@
       <p class="text-gray-400 text-sm mt-1">Login to your BYD account</p>
     </div>
 
-    <form action="#" method="POST" class="space-y-5">
+    <form id="loginForm" class="space-y-5">
       <div>
         <label class="block text-sm mb-2 text-gray-300">Email</label>
-        <input type="email" name="email" required
-          class="w-full input-field px-4 py-3 rounded-xl text-sm text-white placeholder-gray-400"
+        <input type="email" id="email" required
+          class="w-full input-field px-4 py-3 rounded-xl text-sm text-white"
           placeholder="Enter your email">
       </div>
 
       <div>
         <label class="block text-sm mb-2 text-gray-300">Password</label>
-        <input type="password" name="password" required
-          class="w-full input-field px-4 py-3 rounded-xl text-sm text-white placeholder-gray-400"
+        <input type="password" id="password" required
+          class="w-full input-field px-4 py-3 rounded-xl text-sm text-white"
           placeholder="Enter your password">
       </div>
 
@@ -116,9 +130,9 @@
     </form>
   </div>
 
+  <!-- Efek Bintang -->
   <script>
     lucide.createIcons();
-    // efek bintang bergerak
     const canvas = document.getElementById('stars');
     const ctx = canvas.getContext('2d');
     let stars = [];
@@ -154,5 +168,38 @@
     resizeCanvas();
     animateStars();
   </script>
+
+  <!-- Script Login -->
+  <script type="module">
+    import { supabase } from './supabase.js';
+
+    const form = document.getElementById("loginForm");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      const { data, error } = await supabase
+        .from("users")
+        .select("*")
+        .eq("email", email)
+        .eq("password", password)
+        .single();
+
+      if (error || !data) {
+        alert("Email atau password salah.");
+        return;
+      }
+
+      localStorage.setItem("isLoggedIn", "true");
+      localStorage.setItem("userEmail", data.email);
+
+      alert("Login berhasil!");
+      window.location.href = "index.html";
+    });
+  </script>
+
 </body>
 </html>
