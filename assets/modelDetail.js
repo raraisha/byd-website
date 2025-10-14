@@ -108,3 +108,36 @@ function setupVariantSelectors(variants) {
   // Initial render
   updateDisplay();
 }
+
+// === ORDER NOW BUTTON HANDLER ===
+document.getElementById("order-button").addEventListener("click", () => {
+  const carName = document.getElementById("car-name").textContent;
+  const priceText = document.getElementById("car-price").textContent.replace(/[^\d]/g, "");
+  const price = parseFloat(priceText);
+  const image = document.getElementById("car-image").src;
+
+  // Ambil data terakhir dari variant yang sedang ditampilkan
+  const selectedType = document.getElementById("car-type").value;
+  const selectedColorBtn = document.querySelector("#color-options button.border-cyan-400");
+  const selectedColor = selectedColorBtn ? selectedColorBtn.dataset.color : "-";
+
+  if (!selectedColorBtn) {
+    alert("⚠️ Silakan pilih warna mobil terlebih dahulu sebelum melanjutkan.");
+    return;
+  }
+  
+  // Simpan ke localStorage
+  const selectedCar = {
+    nama_produk: carName,
+    varian: selectedType,
+    warna: selectedColor,
+    harga: price,
+    gambar: image
+  };
+
+  localStorage.setItem("selectedCar", JSON.stringify(selectedCar));
+
+  // Redirect ke halaman order
+  window.location.href = "order_detail.html";
+});
+

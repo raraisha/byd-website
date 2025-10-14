@@ -1,19 +1,55 @@
-const price = 33000; // harga mobil
-  const dpRate = 0.3; // 30%
+import supabase from "../supabase.js";
+
+document.addEventListener("DOMContentLoaded", () => {
+  const car = JSON.parse(localStorage.getItem("selectedCar"));
+
+  if (!car) {
+    alert("No car selected.");
+    window.location.href = "models.html";
+    return;
+  }
+
+  // Update order summary
+  document.querySelector(".innovation-card img").src = car.gambar;
+  document.querySelector("#order-name").textContent = car.nama_produk;
+  document.querySelector("#order-color").textContent = car.warna;
+  document.querySelector("#order-type").textContent = car.varian;
+  document.querySelector("#order-price").textContent = `Rp ${parseFloat(car.harga).toLocaleString()}`;
+
+  // Store price globally for payment calculation
+  window.price = parseFloat(car.harga);
+
+  const dpRate = 0.05; // 5%
   const paymentRadios = document.querySelectorAll('input[name="payment-option"]');
   const paymentAmount = document.getElementById('payment-amount');
+  
+  // Default select "Pay in Full"
+  const fullRadio = document.querySelector('input[value="full"]');
+  if (fullRadio) {
+    fullRadio.checked = true; // ✅ auto select
+  }
 
+  // Function to update payment amount
+  function updatePaymentDisplay(selected) {
+    const dpAmount = window.price * dpRate;
+    if (selected === "full") {
+      paymentAmount.textContent = `Rp ${window.price.toLocaleString("id-ID")}`;
+    } else {
+      paymentAmount.textContent = `Rp ${dpAmount.toLocaleString("id-ID")}`;
+    }
+  }
+
+  // Add change listeners
   paymentRadios.forEach(radio => {
-    radio.addEventListener('change', () => {
-      if (radio.value === 'full') {
-        paymentAmount.textContent = `$${price.toLocaleString()}`;
-      } else {
-        const dpAmount = price * dpRate;
-        paymentAmount.textContent = `$${dpAmount.toLocaleString()} (30% DP)`;
-      }
+    radio.addEventListener("change", (e) => {
+      updatePaymentDisplay(e.target.value);
     });
   });
-  
+
+  // ✅ Initialize with "Pay in Full" displayed
+  updatePaymentDisplay("full");
+});
+
 // Simulasi data user login
   const userData = {
     fullName: "John Doe",
