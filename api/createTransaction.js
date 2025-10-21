@@ -1,4 +1,9 @@
 export default async function handler(req, res) {
+
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  
   // Hanya izinkan metode POST
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method Not Allowed" });
@@ -50,6 +55,7 @@ export default async function handler(req, res) {
     );
 
     const result = await midtransRes.json();
+    console.log("Midtrans response:", result);
 
     if (!midtransRes.ok) {
       console.error("Midtrans Error:", result);
