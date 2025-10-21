@@ -9,13 +9,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <style>
     body {
       font-family: 'Poppins', sans-serif;
       background: radial-gradient(circle at top, #050505, #000);
       color: white;
-      overflow: hidden;
+      overflow-x: hidden;
+      overflow-y: auto;
       min-height: 100vh;
     }
 
@@ -58,19 +61,37 @@
       box-shadow: 0 0 8px rgba(0, 255, 255, 0.3);
     }
 
-    .form-container {
-      position: relative;
-      z-index: 1;
-      background: rgba(0, 0, 0, 0.6);
-      border: 1px solid rgba(0,255,255,0.2);
-      box-shadow: 0 0 25px rgba(0,255,255,0.15);
-      backdrop-filter: blur(10px);
-      transition: 0.3s;
-    }
     .form-container:hover {
       box-shadow: 0 0 35px rgba(0,255,255,0.3);
     }
 
+    .form-container {
+    position: relative;
+    z-index: 1;
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(0,255,255,0.2);
+    box-shadow: 0 0 25px rgba(0,255,255,0.15);
+    backdrop-filter: blur(10px);
+    transition: 0.3s;
+    
+    /* 🔽 Tambahan agar bisa di-scroll */
+    max-height: 90vh;        /* batasi tinggi maksimal (90% dari viewport) */
+    overflow-y: auto;         /* aktifkan scroll vertikal */
+    scrollbar-width: thin;    /* Firefox: scrollbar tipis */
+    scrollbar-color: rgba(0,255,255,0.4) transparent; /* warna scrollbar */
+  }
+
+  /* Untuk Chrome, Edge, Safari */
+  .form-container::-webkit-scrollbar {
+    width: 8px;
+  }
+  .form-container::-webkit-scrollbar-thumb {
+    background-color: rgba(0,255,255,0.4);
+    border-radius: 4px;
+  }
+  .form-container::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0,255,255,0.6);
+  }
     .back-btn {
       position: absolute;
       top: 20px;
@@ -91,6 +112,16 @@
       background-color: rgba(6, 182, 212, 0.2);
       transform: scale(1.05);
     }
+
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover, 
+    input:-webkit-autofill:focus, 
+    input:-webkit-autofill:active {
+      -webkit-box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0) inset !important;
+      -webkit-text-fill-color: white !important;
+      transition: background-color 5000s ease-in-out 0s;
+    }
+    
   </style>
 </head>
 
@@ -146,6 +177,36 @@
           <input type="password" name="password" required class="w-full bg-transparent focus:outline-none text-sm text-white placeholder-gray-400" placeholder="Create a password">
         </div>
       </div>
+      
+
+      <!-- Address Input -->
+      <div class="relative z-[1000]">
+        <label class="block text-sm mb-2 text-gray-300">Address</label>
+        <div class="relative">
+          <input 
+            type="text" 
+            id="address" 
+            name="address"
+            placeholder="Start typing your address..."
+            required
+            class="w-full px-4 py-3 rounded-xl bg-gray-800 border border-gray-700 text-white 
+                  focus:outline-none focus:ring-2 focus:ring-cyan-500 placeholder-gray-400"
+          />
+          <ul 
+            id="suggestions" 
+            class="absolute z-[2000] w-full bg-gray-900 border border-gray-700 rounded-lg mt-1 hidden max-h-60 overflow-y-auto"
+          ></ul>
+          <p class="text-gray-500 text-xs mt-1">Pin your exact address below to confirm delivery location.</p>
+        </div>
+      </div>
+
+      <!-- Map Container -->
+      <div id="map" class="w-full h-72 rounded-2xl mt-4 border border-gray-700 z-[200]" style="z-index: 200;"></div>
+
+      <!-- Hidden Inputs -->
+      <input type="hidden" id="latitude" name="latitude">
+      <input type="hidden" id="longitude" name="longitude">
+
 
       <button type="submit" class="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-semibold py-3 rounded-xl transition">
         Register
@@ -164,7 +225,7 @@
 
   <!-- Supabase register -->
   <script type="module">
-    import { supabase } from "./supabase.js";
+    import  supabase  from "./supabase.js";
 
     const form = document.getElementById("register-form");
 
@@ -176,31 +237,119 @@
       const email = form.email.value.trim();
       const no_telp = form.no_telp.value.trim();
       const password = form.password.value.trim();
+      const address = form.address.value.trim();
+      const latitude = form.latitude.value;
+      const longitude = form.longitude.value;
 
-      if (!name || !email || !no_telp || !password) {
-        alert("Semua field wajib diisi!");
+      if (!name || !email || !password) {
+        alert("Nama, email, dan password wajib diisi!");
         return;
       }
 
       try {
-        const { error } = await supabase
-          .from("users")
-          .insert([{ name, email, no_telp, password }]);
+        // 1️⃣ Signup di Supabase Auth
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+          email,
+          password
+        });
 
-        if (error) {
-          console.error(error);
-          alert("Gagal mendaftar: " + error.message);
+        if (authError) {
+          alert("Gagal mendaftar: " + authError.message);
           return;
         }
 
-        alert("Registrasi berhasil! Silakan login.");
+        const auth_id = authData.user.id; // ambil user ID dari Auth
+
+        // 2️⃣ Insert profil ke tabel users
+        const { error: dbError } = await supabase
+          .from("users")
+          .insert([{ name, email, no_telp, address, latitude, longitude, auth_id }]);
+
+        if (dbError) {
+          alert("Gagal menyimpan profil: " + dbError.message);
+          return;
+        }
+
+        alert("Registrasi berhasil! Silakan menunggu email konfirmasi sebelum melakukan login.");
         form.reset();
         window.location.href = "login.html";
+
       } catch (err) {
         console.error(err);
-        alert("Terjadi kesalahan. Coba lagi nanti.");
+        alert("Terjadi kesalahan, coba lagi nanti.");
       }
     });
+
+    const addressInput = document.getElementById("address");
+    const suggestionList = document.getElementById("suggestions");
+    const latInput = document.getElementById("latitude");
+    const lngInput = document.getElementById("longitude");
+
+
+  window.addEventListener("load", () => {
+  console.log("Window loaded, initializing map");
+  // Inisialisasi map
+  // === MAP INITIALIZATION (Jakarta default) ===
+  const map = L.map("map").setView([-6.200000, 106.816666], 12);
+
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19,
+    attribution: "&copy; OpenStreetMap contributors"
+  }).addTo(map);
+
+  // Marker awal
+  let marker = L.marker([-6.200000, 106.816666]).addTo(map);
+
+  // Update marker saat klik di map
+  map.on("click", (e) => {
+    marker.setLatLng(e.latlng);
+    document.getElementById("latitude").value = e.latlng.lat;
+    document.getElementById("longitude").value = e.latlng.lng;
+  });
+
+  // === AUTOCOMPLETE ADDRESS ===
+  let debounceTimer;
+
+  addressInput.addEventListener("input", () => {
+    clearTimeout(debounceTimer);
+    const query = addressInput.value.trim();
+
+    if (query.length < 3) {
+      suggestionList.classList.add("hidden");
+      return;
+    }
+
+    debounceTimer = setTimeout(() => {
+      fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&addressdetails=1&limit=5`)
+        .then(res => res.json())
+        .then(data => {
+          suggestionList.innerHTML = "";
+          if (data.length === 0) {
+            suggestionList.classList.add("hidden");
+            return;
+          }
+
+          data.forEach(place => {
+            const li = document.createElement("li");
+            li.textContent = place.display_name;
+            li.className = "px-4 py-2 hover:bg-gray-800 cursor-pointer text-gray-300";
+            li.addEventListener("click", () => {
+              addressInput.value = place.display_name;
+              document.getElementById("latitude").value = place.lat;
+              document.getElementById("longitude").value = place.lon;
+              map.setView([place.lat, place.lon], 15);
+              marker.setLatLng([place.lat, place.lon]);
+              suggestionList.classList.add("hidden");
+            });
+            suggestionList.appendChild(li);
+          });
+
+          suggestionList.classList.remove("hidden");
+        })
+        .catch(err => console.error("Address fetch error:", err));
+    }, 400); // debounce 400ms
+  });
+  });
   </script>
 </body>
 </html>

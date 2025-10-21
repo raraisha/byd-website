@@ -110,7 +110,19 @@ function setupVariantSelectors(variants) {
 }
 
 // === ORDER NOW BUTTON HANDLER ===
-document.getElementById("order-button").addEventListener("click", () => {
+document.getElementById("order-button").addEventListener("click", async () => {
+  // 🔍 1️⃣ Cek session Supabase
+  const { data: { session } } = await supabase.auth.getSession();
+
+  if (!session || !session.user) {
+    alert("🚫 Anda harus login terlebih dahulu untuk memesan mobil.");
+    window.location.href = "login.html";
+    return;
+  }
+
+  // 2️⃣ Ambil data user dari Supabase (opsional)
+  const user = session.user;
+  
   const carName = document.getElementById("car-name").textContent;
   const priceText = document.getElementById("car-price").textContent.replace(/[^\d]/g, "");
   const price = parseFloat(priceText);

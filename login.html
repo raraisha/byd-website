@@ -179,36 +179,58 @@
   </script>
 
   <!-- Script Login -->
-  <script type="module">
-    import supabase from './supabase.js';
+<script type="module">
+import supabase from './supabase.js';
 
-    const form = document.getElementById("loginForm");
+const form = document.getElementById("loginForm");
 
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
 
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
 
-      const { data, error } = await supabase
-        .from("users")
-        .select("*")
-        .eq("email", email)
-        .eq("password", password)
-        .single();
-
-      if (error || !data) {
-        alert("Email atau password salah.");
-        return;
-      }
-
-      localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("userEmail", data.email);
-
-      alert("Login berhasil!");
-      window.location.href = "index.html";
+  try {
+    // 1️⃣ Login ke Supabase Auth
+    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+      email,
+      password
     });
-  </script>
+
+    if (authError) {
+      alert("Gagal login: " + authError.message);
+      return;
+    }
+
+    const user = authData.user;
+    if (!user) {
+      alert("User tidak ditemukan. Coba lagi.");
+      return;
+    }
+
+    // 2️⃣ Ambil profil user dari tabel public.users
+    const { data: profile, error: profileError } = await supabase
+      .from("users")
+      .select("*")
+      .eq("auth_id", user.id)
+      .single();
+
+    if (profileError) {
+      console.error(profileError);
+      alert("Gagal mengambil data profil.");
+      return;
+    }
+
+    alert("Login berhasil!");
+    window.location.href = "index.html";
+
+  } catch (err) {
+    console.error(err);
+    alert("Terjadi kesalahan tak terduga.");
+  }
+});
+</script>
+
 
 </body>
 </html>

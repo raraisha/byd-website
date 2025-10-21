@@ -7,23 +7,17 @@
   <link rel="stylesheet" href="assets/style.css" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script type="text/javascript"
+        src="https://app.sandbox.midtrans.com/snap/snap.js"
+        data-client-key="Mid-client-ZVMczIC9WB39rJq9"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"> </script>
 </head>
 <body class="text-white relative">
 
-<!-- Navbar -->
-<nav class="fixed top-6 left-1/2 transform -translate-x-1/2 w-[1200px] bg-black/50 nav-glow flex justify-between items-center px-10 py-3 z-50 rounded-full">
-  <div class="flex items-center space-x-2">
-    <img src="image/logo.png" alt="BYD Logo" class="h-10 w-auto" />
-  </div>
-  <ul class="flex space-x-10 text-lg">
-    <li><a href="index.html" class="hover:text-cyan-400 transition">Home</a></li>
-    <li><a href="models.html" class="hover:text-cyan-400 transition">Models</a></li>
-    <li><a href="#" class="hover:text-cyan-400 transition">Profile</a></li>
-    <li><a href="#" class="hover:text-cyan-400 transition">Contact</a></li>
-  </ul>
-</nav>
+  <div id="navbar"></div>
+  <script type="module" src="scripts/loadNavbar.js"></script>
+
 
 <!-- ORDER NOW SECTION -->
 <section class="pt-40 pb-20 px-10 bg-gradient-to-b from-[#000108] to-[#152E4D] min-h-screen">

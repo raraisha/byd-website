@@ -10,30 +10,9 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body class="text-white">
-    <!-- Navbar -->
-    <nav
-      class="fixed top-6 left-1/2 transform -translate-x-1/2 w-[1200px] bg-black/50 nav-glow flex justify-between items-center px-10 py-3 z-50 rounded-full"
-    >
-      <div class="flex items-center space-x-2">
-        <img src="image/logo.png" alt="BYD Logo" class="h-10 w-auto" />
-      </div>
-      <ul class="flex space-x-10 text-lg">
-        <li>
-          <a href="index.html" class="hover:text-cyan-400 transition">Home</a>
-        </li>
-        <li>
-          <a href="models.html" class="hover:text-cyan-400 transition"
-            >Models</a
-          >
-        </li>
-        <li>
-          <a href="#" class="hover:text-cyan-400 transition">Technology</a>
-        </li>
-        <li><a href="#" class="hover:text-cyan-400 transition">Contact</a></li>
-      </ul>
-    </nav>
-
-    <!-- HERO SECTION -->
+  <div id="navbar"></div>
+  <script type="module" src="scripts/loadNavbar.js"></script>
+  <!-- HERO SECTION -->
     <section
       class="pt-40 pb-20 px-10 bg-gradient-to-b from-[#000108] to-[#13223b]"
     >

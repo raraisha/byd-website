@@ -1,97 +1,71 @@
 import supabase from "../supabase.js";
 
-document.addEventListener("DOMContentLoaded", () => {
-  const car = JSON.parse(localStorage.getItem("selectedCar"));
+document.addEventListener("DOMContentLoaded", async () => {
+  // --- 1️⃣ Pastikan user login dulu ---
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session || !session.user) {
+    alert("🚫 Anda harus login terlebih dahulu sebelum melanjutkan pesanan.");
+    window.location.href = "login.html";
+    return;
+  }
+  const user = session.user;
 
+  // --- 2️⃣ Ambil data mobil yang dipilih ---
+  const car = JSON.parse(localStorage.getItem("selectedCar"));
   if (!car) {
-    alert("No car selected.");
+    alert("Tidak ada mobil yang dipilih.");
     window.location.href = "models.html";
     return;
   }
 
-  // Update order summary
+  // Update tampilan ringkasan order
   document.querySelector(".innovation-card img").src = car.gambar;
   document.querySelector("#order-name").textContent = car.nama_produk;
   document.querySelector("#order-color").textContent = car.warna;
   document.querySelector("#order-type").textContent = car.varian;
-  document.querySelector("#order-price").textContent = `Rp ${parseFloat(car.harga).toLocaleString()}`;
-
-  // Store price globally for payment calculation
+  document.querySelector("#order-price").textContent = `Rp ${parseFloat(car.harga).toLocaleString("id-ID")}`;
   window.price = parseFloat(car.harga);
 
-  const dpRate = 0.05; // 5%
-  const paymentRadios = document.querySelectorAll('input[name="payment-option"]');
-  const paymentAmount = document.getElementById('payment-amount');
-  
-  // Default select "Pay in Full"
-  const fullRadio = document.querySelector('input[value="full"]');
-  if (fullRadio) {
-    fullRadio.checked = true; // ✅ auto select
+  // --- 3️⃣ Ambil profil user dari tabel users Supabase ---
+  const { data: profile, error } = await supabase
+    .from("users")
+    .select("*")
+    .eq("auth_id", user.id)
+    .single();
+
+  if (error) {
+    console.error("Gagal memuat profil:", error);
+    alert("Gagal memuat data pengguna.");
+  } else {
+    // Isi otomatis form
+    document.getElementById("fullName").value = profile.name || "";
+    document.getElementById("email").value = profile.email || user.email;
+    document.getElementById("phone").value = profile.no_telp || "";
+    document.getElementById("address").value = profile.address || "";
   }
 
-  // Function to update payment amount
-  function updatePaymentDisplay(selected) {
-    const dpAmount = window.price * dpRate;
-    if (selected === "full") {
-      paymentAmount.textContent = `Rp ${window.price.toLocaleString("id-ID")}`;
-    } else {
-      paymentAmount.textContent = `Rp ${dpAmount.toLocaleString("id-ID")}`;
-    }
-  }
-
-  // Add change listeners
-  paymentRadios.forEach(radio => {
-    radio.addEventListener("change", (e) => {
-      updatePaymentDisplay(e.target.value);
-    });
-  });
-
-  // ✅ Initialize with "Pay in Full" displayed
-  updatePaymentDisplay("full");
-});
-
-// Simulasi data user login
-  const userData = {
-    fullName: "John Doe",
-    email: "john@example.com",
-    phone: "+628123456789",
-    address: "Jl. Example No.123, Jakarta"
-  };
-
-  document.getElementById('fullName').value = userData.fullName;
-  document.getElementById('email').value = userData.email;
-  document.getElementById('phone').value = userData.phone;
-  document.getElementById('address').value = userData.address;
-
-// Inisialisasi Map (Jakarta sebagai default)
+  // --- 4️⃣ Setup Leaflet Map untuk alamat ---
   const map = L.map("map").setView([-6.200000, 106.816666], 12);
-
-  // Tambahkan Tile Layer
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 19,
-    attribution: "&copy; OpenStreetMap"
+    attribution: "&copy; OpenStreetMap",
   }).addTo(map);
 
-  // Marker awal
   let marker = L.marker([-6.200000, 106.816666]).addTo(map);
-
-  // Update marker saat klik di map
   map.on("click", (e) => {
     marker.setLatLng(e.latlng);
     document.getElementById("latitude").value = e.latlng.lat;
     document.getElementById("longitude").value = e.latlng.lng;
   });
 
-  // Autocomplete address
+  // --- 5️⃣ Autocomplete alamat ---
   const addressInput = document.getElementById("address");
   const suggestionBox = document.getElementById("suggestions");
-
   let debounceTimer;
 
   addressInput.addEventListener("input", () => {
     clearTimeout(debounceTimer);
     const query = addressInput.value.trim();
-
     if (query.length < 3) {
       suggestionBox.classList.add("hidden");
       return;
@@ -122,150 +96,109 @@ document.addEventListener("DOMContentLoaded", () => {
           });
           suggestionBox.classList.remove("hidden");
         });
-    }, 400); // debounce 400ms
+    }, 400);
   });
 
-  // Tutup dropdown jika klik di luar
   document.addEventListener("click", (e) => {
     if (!e.target.closest("#address")) suggestionBox.classList.add("hidden");
   });
 
-  // Metode pembayaran dinamis (sandbox)
-  const paymentSelect = document.getElementById('payment');
 
-  // Struktur payment lebih rinci
-  const paymentMethods = [
-    {
-      category: 'Bank Transfer',
-      options: [
-        { value: 'bca_va', label: 'BCA Virtual Account' },
-        { value: 'mandiri_va', label: 'Mandiri Virtual Account' },
-        { value: 'bni_va', label: 'BNI Virtual Account' },
-        { value: 'bri_va', label: 'BRI Virtual Account' },
-      ]
-    },
-    {
-      category: 'Credit Card',
-      options: [
-        { value: 'visa', label: 'Visa' },
-        { value: 'mastercard', label: 'MasterCard' },
-      ]
-    },
-    {
-      category: 'E-Wallet / QRIS',
-      options: [
-        { value: 'qris', label: 'QRIS' }, // Bisa dinamis sesuai sandbox
-      ]
-    }
-  ];
+  // --- 7️⃣ Hitung dan tampilkan jumlah pembayaran (DP / Full) ---
+  const dpRate = 0.05;
+  const paymentRadios = document.querySelectorAll('input[name="payment-option"]');
+  const paymentAmount = document.getElementById("payment-amount");
+  const fullRadio = document.querySelector('input[value="full"]');
+  if (fullRadio) fullRadio.checked = true;
 
-  // Generate <optgroup> dan <option>
-  paymentMethods.forEach(group => {
-    const optGroup = document.createElement('optgroup');
-    optGroup.label = group.category;
-    group.options.forEach(opt => {
-      const option = document.createElement('option');
-      option.value = opt.value;
-      option.textContent = opt.label;
-      optGroup.appendChild(option);
-    });
-    paymentSelect.appendChild(optGroup);
+  function updatePaymentDisplay(selected) {
+    const dpAmount = window.price * dpRate;
+    paymentAmount.textContent = selected === "full"
+      ? `Rp ${window.price.toLocaleString("id-ID")}`
+      : `Rp ${dpAmount.toLocaleString("id-ID")}`;
+  }
+  paymentRadios.forEach(radio => {
+    radio.addEventListener("change", (e) => updatePaymentDisplay(e.target.value));
   });
+  updatePaymentDisplay("full");
 
-  document.getElementById("order-form").addEventListener("submit", function (e) {
+document.getElementById("order-form").addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const paymentMethod = document.getElementById("payment").value;
-  const modal = document.getElementById("payment-modal");
-  const modalContent = document.getElementById("modal-content");
-
   const orderData = {
-    name: document.getElementById("fullName").value,
-    email: document.getElementById("email").value,
-    phone: document.getElementById("phone").value,
-    address: document.getElementById("address").value,
-    paymentMethod,
-    status: "pending"
+    user_id: user.id,
+    name: document.getElementById("fullName").value || profile.name,
+    email: document.getElementById("email").value || profile.email || user.email,
+    phone: document.getElementById("phone").value || profile.no_telp,
+    address: document.getElementById("address").value || profile.address,
+    status: "pending",
+    created_at: new Date().toISOString(),
+    car_name: car.nama_produk,
+    car_price: car.harga,
   };
+
+  // Simpan sementara ke localStorage
   localStorage.setItem("bydOrder", JSON.stringify(orderData));
 
-  modalContent.innerHTML = "";
+  // --- 1️⃣ Request Snap Token ke backend PHP ---
+  try {
+    const res = await fetch("api/createTransaction.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        order_id: "ORDER-" + Date.now(),
+        gross_amount: orderData.car_price,
+        customer: {
+          first_name: orderData.name,
+          email: orderData.email,
+          phone: orderData.phone,
+          address: orderData.address
+        }
+      })
+    });
 
-  if (paymentMethod === "qris") {
-    modalContent.innerHTML = `
-      <h2 class="text-2xl font-bold text-cyan-400">Scan QRIS to Pay</h2>
-      <img src="image/qris-example.png" alt="QRIS" class="mx-auto w-56 h-56 rounded-lg border border-gray-700 shadow-lg">
-      <p class="text-gray-400">Complete your payment within:</p>
-      <h3 id="countdown" class="text-3xl font-bold text-cyan-400">15:00</h3>
-      <div id="status" class="text-yellow-400 font-semibold">Waiting for payment...</div>
-      <button id="cancel-payment" class="btn-gradient-red w-full mt-4 py-2 rounded-lg font-semibold text-white">
-        Cancel Payment
-      </button>
-    `;
-    startCountdown(15 * 60, modalContent);
-  } 
-  else if (paymentMethod.includes("_va")) {
-    const bankName = paymentMethod.split("_")[0].toUpperCase();
-    const vaNumber = "8808" + Math.floor(1000000000 + Math.random() * 9000000000);
+    const data = await res.json();
 
-    modalContent.innerHTML = `
-      <h2 class="text-2xl font-bold text-cyan-400">${bankName} Virtual Account</h2>
-      <p class="text-gray-400">Transfer to the VA number below:</p>
-      <div class="bg-gray-800 py-3 rounded-xl border border-gray-700 text-xl font-mono text-cyan-300 mt-3 select-all">${vaNumber}</div>
-      <p class="text-gray-500 text-sm mt-2">Valid for 1 hour.</p>
-      <h3 id="countdown" class="text-3xl font-bold text-cyan-400 mt-3">60:00</h3>
-      <div id="status" class="text-yellow-400 font-semibold mt-2">Waiting for payment confirmation...</div>
-      <button id="cancel-payment" class="btn-gradient-red w-full mt-4 py-2 rounded-lg font-semibold text-white">
-        Cancel Payment
-      </button>
-    `;
-    startCountdown(60 * 60, modalContent);
-  } 
-  else if (paymentMethod === "visa" || paymentMethod === "mastercard") {
-    modalContent.innerHTML = `
-      <h2 class="text-2xl font-bold text-cyan-400">Credit Card Payment</h2>
-      <p class="text-gray-400 mb-3">Demo checkout form:</p>
-      <input type="text" placeholder="Card Number" class="w-full px-4 py-2 mb-2 rounded-lg bg-gray-800 border border-gray-700 text-white" />
-      <div class="flex gap-3">
-        <input type="text" placeholder="MM/YY" class="flex-1 px-4 py-2 rounded-lg bg-gray-800 border border-gray-700 text-white" />
-        <input type="text" placeholder="CVV" class="flex-1 px-4 py-2 rounded-lg bg-gray-800 border border-gray-700 text-white" />
-      </div>
-      <button id="pay-now" class="btn-gradient w-full py-2 rounded-lg font-semibold mt-4">Pay Now</button>
-      <button id="cancel-payment" class="btn-gradient-red w-full mt-2 py-2 rounded-lg font-semibold text-white">
-        Cancel Payment
-      </button>
-    `;
-  } 
-  else {
-    modalContent.innerHTML = `
-      <h2 class="text-xl text-red-400 font-semibold">Invalid Payment Method</h2>
-      <p class="text-gray-400">Please select a valid option.</p>
-      <button id="cancel-payment" class="btn-gradient-red w-full mt-2 py-2 rounded-lg font-semibold text-white">
-        Close
-      </button>
-    `;
-  }
-
-  modal.classList.remove("hidden");
-  modal.classList.add("flex");
-
-  // Tombol close (pojok kanan atas)
-  document.getElementById("close-modal").addEventListener("click", confirmCancel);
-  // Tombol cancel di dalam modal
-  const cancelBtn = document.getElementById("cancel-payment");
-  if (cancelBtn) cancelBtn.addEventListener("click", confirmCancel);
-
-  function confirmCancel() {
-    if (confirm("Are you sure you want to cancel this payment?")) {
-      clearPendingPayment();
-      modal.classList.add("hidden");
-      alert("Payment cancelled.");
-      window.location.href = "order_detail.html"; // arahkan kembali ke halaman order
+    if (!data.token) {
+      alert("Gagal membuat transaksi Midtrans.");
+      console.error(data);
+      return;
     }
+
+    // --- 2️⃣ Panggil Snap popup ---
+    window.snap.pay(data.token, {
+      onSuccess: function(result){
+        console.log("Payment success:", result);
+        // Update status order
+        orderData.status = "success";
+        localStorage.setItem("bydOrder", JSON.stringify(orderData));
+        window.location.href = "payment_success.html";
+      },
+      onPending: function(result){
+        console.log("Payment pending:", result);
+        orderData.status = "pending";
+        localStorage.setItem("bydOrder", JSON.stringify(orderData));
+        alert("Pembayaran sedang menunggu konfirmasi.");
+      },
+      onError: function(result){
+        console.log("Payment error:", result);
+        orderData.status = "failed";
+        localStorage.setItem("bydOrder", JSON.stringify(orderData));
+        alert("Pembayaran gagal.");
+      },
+      onClose: function(){
+        alert("Popup pembayaran ditutup.");
+      }
+    });
+
+  } catch(err) {
+    console.error(err);
+    alert("Terjadi kesalahan saat memproses pembayaran.");
   }
 });
+});
 
-// Timer countdown
+// --- Fungsi countdown timer ---
 function startCountdown(duration, modalContent) {
   let timeLeft = duration;
   const countdownEl = modalContent.querySelector("#countdown");
@@ -274,15 +207,13 @@ function startCountdown(duration, modalContent) {
   const timer = setInterval(() => {
     const m = Math.floor(timeLeft / 60);
     const s = timeLeft % 60;
-    countdownEl.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    countdownEl.textContent = `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 
     if (timeLeft === 540) {
       clearInterval(timer);
       statusEl.textContent = "Payment confirmed!";
       statusEl.classList.replace("text-yellow-400", "text-green-400");
-      setTimeout(() => {
-        window.location.href = "payment_success.html";
-      }, 2000);
+      setTimeout(() => window.location.href = "payment_success.html", 2000);
     }
 
     if (timeLeft <= 0) {
@@ -295,7 +226,7 @@ function startCountdown(duration, modalContent) {
   }, 1000);
 }
 
-// Hapus data order dari localStorage jika cancel
+// --- Jika cancel, ubah status order ---
 function clearPendingPayment() {
   const order = JSON.parse(localStorage.getItem("bydOrder"));
   if (order) {
@@ -303,4 +234,3 @@ function clearPendingPayment() {
     localStorage.setItem("bydOrder", JSON.stringify(order));
   }
 }
-

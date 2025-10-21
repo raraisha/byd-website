@@ -214,9 +214,10 @@
   </style>
 </head>
 <body class="text-white">
-
+ 
   <!-- Navbar -->
   <div id="navbar"></div>
+  <script type="module" src="scripts/loadNavbar.js"></script>
 
 <!-- Hero Section -->
 <section class="relative flex flex-col items-center justify-center h-[900px] text-center overflow-hidden px-10 bg-gradient-to-b from-[#000108] to-[#152E4D]">
@@ -486,15 +487,7 @@
 
 <div id="footer"></div>
 
-<script src="assets/navbar.js"></script>
-
   <script>
-        fetch("navbar.html")
-      .then(res => res.text())
-      .then(data => {
-        document.getElementById("navbar").innerHTML = data;
-        lucide.createIcons(); // aktifkan ikon setelah navbar dimuat
-      });
         fetch("footer.html")
     .then(res => res.text())
     .then(data => {
