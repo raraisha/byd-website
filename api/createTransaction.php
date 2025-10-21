@@ -49,7 +49,7 @@ $token = $response['token'] ?? null;
 if ($token) {
     // Kirim data transaksi ke saveTransaction.php
     $save = curl_init();
-    curl_setopt($save, CURLOPT_URL, "http://localhost/api/saveTransaction.php");
+    curl_setopt($save, CURLOPT_URL, "https://byd-website.vercel.app/api/saveTransaction.php");
     curl_setopt($save, CURLOPT_HTTPHEADER, array("Content-Type: application/json"));
     curl_setopt($save, CURLOPT_POST, 1);
     curl_setopt($save, CURLOPT_POSTFIELDS, json_encode([
