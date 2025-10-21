@@ -142,7 +142,7 @@ document.getElementById("order-form").addEventListener("submit", async (e) => {
 
   // --- 1️⃣ Request Snap Token ke backend PHP ---
   try {
-    const res = await fetch("api/createTransaction.js", {
+    const res = await fetch("/api/createTransaction", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
