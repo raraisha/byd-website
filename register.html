@@ -7,6 +7,9 @@
 
   <!-- Font & Tailwind -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Font & Tailwind -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -44,6 +47,9 @@
     .stars { animation: moveStars 100s linear infinite; opacity: 0.4; }
     .stars2 { animation: moveStars 200s linear infinite; opacity: 0.3; }
     .stars3 { animation: moveStars 300s linear infinite; opacity: 0.2; }
+    .stars { animation: moveStars 100s linear infinite; opacity: 0.4; }
+    .stars2 { animation: moveStars 200s linear infinite; opacity: 0.3; }
+    .stars3 { animation: moveStars 300s linear infinite; opacity: 0.2; }
 
     @keyframes moveStars {
       from { transform: translateY(0px); }
@@ -51,6 +57,8 @@
     }
 
     .input-field {
+      background-color: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
       background-color: rgba(255, 255, 255, 0.1);
       border: 1px solid rgba(255, 255, 255, 0.2);
       transition: 0.3s;
@@ -66,32 +74,16 @@
     }
 
     .form-container {
-    position: relative;
-    z-index: 1;
-    background: rgba(0, 0, 0, 0.6);
-    border: 1px solid rgba(0,255,255,0.2);
-    box-shadow: 0 0 25px rgba(0,255,255,0.15);
-    backdrop-filter: blur(10px);
-    transition: 0.3s;
-    
-    /* 🔽 Tambahan agar bisa di-scroll */
-    max-height: 90vh;        /* batasi tinggi maksimal (90% dari viewport) */
-    overflow-y: auto;         /* aktifkan scroll vertikal */
-    scrollbar-width: thin;    /* Firefox: scrollbar tipis */
-    scrollbar-color: rgba(0,255,255,0.4) transparent; /* warna scrollbar */
-  }
+      position: relative;
+      z-index: 1;
+      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(0,255,255,0.2);
+      box-shadow: 0 0 25px rgba(0,255,255,0.15);
+      backdrop-filter: blur(10px);
+      transition: 0.3s;
+    }
 
-  /* Untuk Chrome, Edge, Safari */
-  .form-container::-webkit-scrollbar {
-    width: 8px;
-  }
-  .form-container::-webkit-scrollbar-thumb {
-    background-color: rgba(0,255,255,0.4);
-    border-radius: 4px;
-  }
-  .form-container::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(0,255,255,0.6);
-  }
+    /* Tombol back */
     .back-btn {
       position: absolute;
       top: 20px;
