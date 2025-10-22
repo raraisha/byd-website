@@ -142,7 +142,7 @@ document.getElementById("order-form").addEventListener("submit", async (e) => {
 
   // --- 1️⃣ Request Snap Token ke backend PHP ---
   try {
-    const res = await fetch("https://byd-website.vercel.app/api/createTransaction", {
+    const res = await fetch("https://byd-website.vercel.app/api/createTransaction.js", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
