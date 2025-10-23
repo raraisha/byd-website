@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kelola Mobil - BYD Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to bottom, #000108, #0a1625, #112b45);
+      color: white;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .sidebar {
+      width: 250px;
+      background: linear-gradient(to bottom right, #000000, #0b0f14);
+      padding: 40px 25px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
+    }
+    .sidebar img { width: 120px; margin: 0 auto 50px; filter: drop-shadow(0 0 8px #00aaff); }
+    .nav-item { display: block; padding: 12px 18px; margin-bottom: 10px; border-radius: 25px; color: #d1d5db; transition: all 0.3s ease; }
+    .nav-item:hover { background: rgba(255,255,255,0.08); transform: translateX(5px); color: #00aaff; }
+    .nav-item.active { background: linear-gradient(90deg,#0b1725,#142a42); box-shadow: inset 0 0 8px rgba(0,153,255,0.4); color: #00aaff; transform: translateX(5px); }
+    .logout-btn { background: rgba(255,0,0,0.1); border: 1px solid rgba(255,0,0,0.3); color: #ff4d4d; padding: 12px; border-radius: 25px; text-align: center; font-weight: 500; cursor: pointer; transition: 0.3s; }
+    .logout-btn:hover { background: rgba(255,0,0,0.25); transform: translateY(-2px); }
+    main { margin-left: 250px; padding: 50px; width: calc(100% - 250px); background: linear-gradient(to bottom,#000108,#0a1625,#112b45); height: 100vh; overflow-y: auto; position: relative; }
+    .admin-profile { position: absolute; right: 40px; top: 25px; display: flex; align-items: center; gap: 10px; background: rgba(10,22,37,0.7); padding: 8px 14px; border-radius: 30px; box-shadow: 0 0 10px rgba(0,255,255,0.2); }
+    .admin-profile img { width: 40px; height: 40px; border-radius: 50%; border: 2px solid rgba(0,255,255,0.3); }
+  </style>
+</head>
+
+<body>
+  <div id="sidebar-container"></div>
+
+  <!-- Main -->
+  <main>
+    <div class="admin-profile">
+      <span class="text-sm text-gray-300">Admin BYD</span>
+      <img src="image/admin.png" alt="Admin" />
+    </div>
+
+    <h1 class="text-3xl font-semibold text-cyan-400 mb-10 mt-20">Kelola Mobil</h1>
+
+    <div class="flex justify-between items-center mb-6">
+      <button onclick="window.location.href='tambah_mobil.html'" class="bg-cyan-600 hover:bg-cyan-500 px-4 py-2 rounded-full">+ Tambah Mobil</button>
+    </div>
+
+    <div class="flex flex-col md:flex-row justify-between mb-6 gap-4">
+      <input id="searchMobil" type="text" placeholder="Cari mobil..." class="px-4 py-2 rounded-md bg-[#0E1A2B]/60 border border-cyan-400/30 w-full md:w-1/2 focus:outline-none" />
+      <select id="filterTipe" class="px-4 py-2 rounded-md bg-[#0E1A2B]/60 border border-cyan-400/30 w-full md:w-1/4">
+        <option>Semua</option>
+        <option>SUV</option>
+        <option>Hatchback</option>
+        <option>Sedan</option>
+      </select>
+    </div>
+
+    <div class="bg-[#0E1A2B]/70 rounded-xl border border-cyan-400/20 overflow-x-auto">
+      <table class="w-full text-sm border-collapse">
+        <thead class="bg-[#091523] text-cyan-300">
+          <tr>
+            <th class="p-3 text-center">ID</th>
+            <th class="p-3 text-center">Foto</th>
+            <th class="p-3 text-center">Nama Produk</th>
+            <th class="p-3 text-center">Tipe</th>
+            <th class="p-3 text-center">Varian</th>
+            <th class="p-3 text-center">Kapasitas</th>
+            <th class="p-3 text-center">Warna</th>
+            <th class="p-3 text-center">Stock</th>
+            <th class="p-3 text-center">Harga</th>
+            <th class="p-3 text-center">Tahun</th>
+            <th class="p-3 text-center">Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="tabelMobil" class="text-gray-300 divide-y divide-gray-700/40"></tbody>
+      </table>
+    </div>
+  </main>
+
+
+  <script>
+  // include sidebar.html ke dalam halaman
+  fetch('sidebar.html')
+    .then(res => res.text())
+    .then(html => {
+      document.getElementById('sidebar-container').innerHTML = html;
+    })
+    .catch(err => console.error('Gagal memuat sidebar:', err));
+</script>
+
+
+  <!-- Notif -->
+  <div id="notif" class="hidden fixed bottom-6 right-6 bg-green-500 text-white px-6 py-3 rounded shadow-lg">Data berhasil diperbarui!</div>
+
+  <!-- Modal Edit Final -->
+  <div id="editModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+    <div class="bg-[#0E1A2B] w-full max-w-lg rounded-xl p-6 border border-cyan-400/30 shadow-2xl overflow-y-auto max-h-[90vh]">
+      <h3 class="text-xl font-semibold mb-5 text-cyan-300 text-center border-b border-cyan-400/20 pb-3">
+        ✏️ Edit Data Mobil
+      </h3>
+      <form id="editForm" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+        <input type="hidden" id="edit-id">
+
+        <input id="edit-nama" placeholder="Nama Produk" required class="w-full border border-cyan-400/30 rounded px-3 py-2 bg-[#091523]" />
+        <input id="edit-tipe" placeholder="Tipe" required class="w-full border border-cyan-400/30 rounded px-3 py-2 bg-[#091523]" />
+        <input id="edit-varian" placeholder="Varian" required class="w-full border border-cyan-400/30 rounded px-3 py-2 bg-[#091523]" />
+        <input id="edit-warna" placeholder="Warna" class="w-full border border-cyan-400/30 rounded px-3 py-2 bg-[#091523]" />
+        <input id="edit-kapasitas" type="number" placeholder="Kapasitas Penumpang" class="w-full border border-cyan-400/30 rounded px-3 py-2 bg-[#091523]" />
+        <input id="edit-stock" type="number" placeholder="Stock" class="w-full border border-cyan-400/30 rounded px-3 py-2 bg-[#091523]" />
+        <input id="edit-harga" type="number" placeholder="Harga" class="w-full border border-cyan-400/30 rounded px-3 py-2 bg-[#091523]" />
+        <input id="edit-tahun" type="number" placeholder="Tahun" class="w-full border border-cyan-400/30 rounded px-3 py-2 bg-[#091523]" />
+        <input id="edit-baterai" placeholder="Baterai (contoh: 60 kWh)" class="w-full border border-cyan-400/30 rounded px-3 py-2 bg-[#091523]" />
+        <input id="edit-jarak" placeholder="Jarak Tempuh (contoh: 450 km)" class="w-full border border-cyan-400/30 rounded px-3 py-2 bg-[#091523]" />
+        <input id="edit-tenaga" placeholder="Tenaga Motor (contoh: 250 HP)" class="w-full border border-cyan-400/30 rounded px-3 py-2 bg-[#091523]" />
+        <input id="edit-akselerasi" placeholder="Akselerasi (contoh: 0-100 km/h 6.5s)" class="w-full border border-cyan-400/30 rounded px-3 py-2 bg-[#091523]" />
+        <input id="edit-pengisian" placeholder="Pengisian (contoh: 80% dalam 30 menit)" class="w-full border border-cyan-400/30 rounded px-3 py-2 bg-[#091523]" />
+        <textarea id="edit-deskripsi" placeholder="Deskripsi Mobil" rows="3" class="md:col-span-2 w-full border border-cyan-400/30 rounded px-3 py-2 bg-[#091523]"></textarea>
+
+        <div class="md:col-span-2 flex justify-end gap-3 pt-4 border-t border-cyan-400/10 mt-2">
+          <button type="button" id="closeModal" class="bg-gray-600 hover:bg-gray-500 px-4 py-2 rounded-lg transition">Batal</button>
+          <button type="submit" class="bg-cyan-600 hover:bg-cyan-500 px-4 py-2 rounded-lg font-medium transition">Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module">
+import supabase from './supabase.js'
+
+const tbody = document.getElementById('tabelMobil')
+const notif = document.getElementById('notif')
+const editModal = document.getElementById('editModal')
+const searchMobil = document.getElementById('searchMobil')
+const filterTipe = document.getElementById('filterTipe')
+
+let dataMobil = []
+let currentPage = 1
+const itemsPerPage = 10
+
+// 🔹 Modal Detail
+const detailModal = document.createElement('div')
+detailModal.id = 'detailModal'
+detailModal.className = 'hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50'
+detailModal.innerHTML = `
+  <div class="bg-[#0E1A2B] w-full max-w-2xl rounded-lg p-6 border border-cyan-400/30 text-white max-h-[90vh] overflow-y-auto">
+    <h3 class="text-lg font-bold mb-4 text-cyan-300 text-center">Detail Mobil</h3>
+    <div id="detailContent" class="space-y-3 mb-5"></div>
+    <div class="flex justify-end gap-3 mt-4">
+      <button id="detailEdit" class="bg-cyan-600 hover:bg-cyan-500 px-4 py-2 rounded">Edit</button>
+      <button id="detailDelete" class="bg-red-600 hover:bg-red-500 px-4 py-2 rounded">Hapus</button>
+      <button id="closeDetail" class="bg-gray-600 px-4 py-2 rounded">Tutup</button>
+    </div>
+  </div>
+`
+document.body.appendChild(detailModal)
+
+// 🔹 Muat Data dari Supabase
+async function loadMobil() {
+  const { data, error } = await supabase
+    .from('mobil')
+    .select('*')
+    .order('id_mobil', { ascending: true })
+  if (error) return console.error(error)
+  dataMobil = data
+  applyFilters()
+}
+
+// 🔹 Render Tabel sesuai halaman aktif
+function renderTable(list) {
+  const start = (currentPage - 1) * itemsPerPage
+  const end = start + itemsPerPage
+  const pageItems = list.slice(start, end)
+
+  tbody.innerHTML = pageItems.length
+    ? pageItems.map(m => `
+      <tr class="hover:bg-[#0f2038] transition">
+        <td class="p-3 text-center">${m.id_mobil}</td>
+        <td class="p-3 text-center">
+          <div class="w-28 h-20 flex items-center justify-center bg-[#091523] rounded-lg border border-cyan-400/30">
+            <img src="${m.gambar || 'image/default_car.png'}" class="max-h-full max-w-full object-contain" alt="">
+          </div>
+        </td>
+        <td class="p-3 text-center">${m.nama_produk}</td>
+        <td class="p-3 text-center">${m.tipe}</td>
+        <td class="p-3 text-center">${m.varian}</td>
+        <td class="p-3 text-center">${m.kapasitas_penumpang || '-'}</td>
+        <td class="p-3 text-center">${m.warna}</td>
+        <td class="p-3 text-center">${m.stock}</td>
+        <td class="p-3 text-center">Rp ${m.harga.toLocaleString('id-ID')}</td>
+        <td class="p-3 text-center">${m.tahun}</td>
+        <td class="p-3 text-center">
+          <button class="bg-cyan-600 hover:bg-cyan-500 px-3 py-1 rounded" onclick="detailMobil(${m.id_mobil})">Detail</button>
+        </td>
+      </tr>
+    `).join('')
+    : `<tr><td colspan="11" class="text-center py-5 text-gray-400">Tidak ada data.</td></tr>`
+
+  renderPagination(list.length)
+}
+
+// 🔹 Pagination
+function renderPagination(totalItems) {
+  const totalPages = Math.ceil(totalItems / itemsPerPage)
+  const paginationContainer = document.getElementById('pagination')
+
+  if (!paginationContainer) {
+    const div = document.createElement('div')
+    div.id = 'pagination'
+    div.className = 'flex justify-center mt-6 gap-3'
+    tbody.parentElement.parentElement.after(div)
+  }
+
+  document.getElementById('pagination').innerHTML = `
+    <button ${currentPage === 1 ? 'disabled' : ''} 
+      class="px-4 py-2 bg-cyan-700/60 rounded ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-cyan-500'}"
+      onclick="prevPage()">Sebelumnya</button>
+    <span class="px-3 py-2 text-cyan-300">Halaman ${currentPage} dari ${totalPages}</span>
+    <button ${currentPage === totalPages ? 'disabled' : ''} 
+      class="px-4 py-2 bg-cyan-700/60 rounded ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-cyan-500'}"
+      onclick="nextPage()">Selanjutnya</button>
+  `
+}
+
+// 🔹 Navigasi Halaman
+window.nextPage = () => {
+  const filtered = getFilteredData()
+  const totalPages = Math.ceil(filtered.length / itemsPerPage)
+  if (currentPage < totalPages) {
+    currentPage++
+    renderTable(filtered)
+  }
+}
+
+window.prevPage = () => {
+  if (currentPage > 1) {
+    currentPage--
+    renderTable(getFilteredData())
+  }
+}
+
+// 🔍 Filter & Pencarian
+function getFilteredData() {
+  const search = searchMobil.value.toLowerCase()
+  const tipe = filterTipe.value
+  return dataMobil.filter(m =>
+    (m.nama_produk.toLowerCase().includes(search) || m.varian.toLowerCase().includes(search)) &&
+    (tipe === 'Semua' || m.tipe.toLowerCase() === tipe.toLowerCase())
+  )
+}
+
+function applyFilters() {
+  currentPage = 1
+  renderTable(getFilteredData())
+}
+
+searchMobil.addEventListener('input', applyFilters)
+filterTipe.addEventListener('change', applyFilters)
+
+// 🔹 Detail Mobil
+window.detailMobil = async (id) => {
+  const { data } = await supabase.from('mobil').select('*').eq('id_mobil', id).single()
+  if (!data) return alert('Data tidak ditemukan')
+
+  const detailContent = document.getElementById('detailContent')
+  detailContent.innerHTML = `
+    <div class="flex flex-col md:flex-row gap-5">
+      <img src="${data.gambar || 'image/default_car.png'}" class="w-52 h-36 object-contain border border-cyan-400/30 rounded-lg bg-[#091523] mx-auto md:mx-0">
+      <div class="space-y-1">
+        <p><strong>Nama:</strong> ${data.nama_produk}</p>
+        <p><strong>Tipe:</strong> ${data.tipe}</p>
+        <p><strong>Varian:</strong> ${data.varian}</p>
+        <p><strong>Kapasitas:</strong> ${data.kapasitas_penumpang}</p>
+        <p><strong>Warna:</strong> ${data.warna}</p>
+        <p><strong>Stock:</strong> ${data.stock}</p>
+        <p><strong>Harga:</strong> Rp ${data.harga.toLocaleString('id-ID')}</p>
+        <p><strong>Tahun:</strong> ${data.tahun}</p>
+        <hr class="my-2 border-cyan-400/20">
+        <p><strong>Baterai:</strong> ${data.baterai || '-'}</p>
+        <p><strong>Jarak Tempuh:</strong> ${data.jarak_tempuh || '-'}</p>
+        <p><strong>Tenaga Motor:</strong> ${data.tenaga_motor || '-'}</p>
+        <p><strong>Akselerasi:</strong> ${data.akselerasi || '-'}</p>
+        <p><strong>Pengisian:</strong> ${data.pengisian || '-'}</p>
+        <p><strong>Deskripsi:</strong> ${data.deskripsi || '-'}</p>
+      </div>
+    </div>
+  `
+  detailModal.classList.remove('hidden')
+
+  document.getElementById('detailEdit').onclick = () => {
+    detailModal.classList.add('hidden')
+    editMobil(id)
+  }
+
+  document.getElementById('detailDelete').onclick = () => {
+    if (confirm('Yakin ingin menghapus mobil ini?')) {
+      hapusMobil(id)
+      detailModal.classList.add('hidden')
+    }
+  }
+}
+
+document.getElementById('closeDetail').addEventListener('click', () => {
+  detailModal.classList.add('hidden')
+})
+
+// 🗑️ Hapus
+window.hapusMobil = async (id) => {
+  const { error } = await supabase.from('mobil').delete().eq('id_mobil', id)
+  if (error) return alert('Gagal hapus data!')
+  alert('Data berhasil dihapus.')
+  loadMobil()
+}
+
+// ✏️ Edit (modal lama tetap dipakai)
+window.editMobil = async (id) => {
+  const { data } = await supabase.from('mobil').select('*').eq('id_mobil', id).single()
+  if (!data) return alert('Data tidak ditemukan')
+  editModal.classList.remove('hidden')
+  document.getElementById('edit-id').value = data.id_mobil
+  document.getElementById('edit-nama').value = data.nama_produk
+  document.getElementById('edit-tipe').value = data.tipe
+  document.getElementById('edit-varian').value = data.varian
+  document.getElementById('edit-warna').value = data.warna
+  document.getElementById('edit-kapasitas').value = data.kapasitas_penumpang
+  document.getElementById('edit-stock').value = data.stock
+  document.getElementById('edit-harga').value = data.harga
+  document.getElementById('edit-tahun').value = data.tahun
+
+  // tambahkan field baru ke form modal edit kalau belum ada
+  if (!document.getElementById('edit-baterai')) {
+    const form = document.getElementById('editForm')
+    const newFields = `
+      <input id="edit-baterai" placeholder="Baterai" class="w-full border border-cyan-400/30 rounded px-3 py-2 bg-[#091523]" />
+      <input id="edit-jarak" placeholder="Jarak Tempuh" class="w-full border border-cyan-400/30 rounded px-3 py-2 bg-[#091523]" />
+      <input id="edit-tenaga" placeholder="Tenaga Motor" class="w-full border border-cyan-400/30 rounded px-3 py-2 bg-[#091523]" />
+      <input id="edit-akselerasi" placeholder="Akselerasi" class="w-full border border-cyan-400/30 rounded px-3 py-2 bg-[#091523]" />
+      <input id="edit-pengisian" placeholder="Pengisian" class="w-full border border-cyan-400/30 rounded px-3 py-2 bg-[#091523]" />
+      <textarea id="edit-deskripsi" placeholder="Deskripsi" class="w-full border border-cyan-400/30 rounded px-3 py-2 bg-[#091523]"></textarea>
+    `
+    form.insertAdjacentHTML('beforeend', newFields)
+  }
+
+  // isi data field tambahan
+  document.getElementById('edit-baterai').value = data.baterai || ''
+  document.getElementById('edit-jarak').value = data.jarak_tempuh || ''
+  document.getElementById('edit-tenaga').value = data.tenaga_motor || ''
+  document.getElementById('edit-akselerasi').value = data.akselerasi || ''
+  document.getElementById('edit-pengisian').value = data.pengisian || ''
+  document.getElementById('edit-deskripsi').value = data.deskripsi || ''
+}
+
+// 🚪 Tutup Modal Edit
+document.getElementById('closeModal').addEventListener('click', () => editModal.classList.add('hidden'))
+
+// 💾 Simpan Edit
+document.getElementById('editForm').addEventListener('submit', async (e) => {
+  e.preventDefault()
+  const id = document.getElementById('edit-id').value
+  const update = {
+    nama_produk: document.getElementById('edit-nama').value,
+    tipe: document.getElementById('edit-tipe').value,
+    varian: document.getElementById('edit-varian').value,
+    warna: document.getElementById('edit-warna').value,
+    kapasitas_penumpang: parseInt(document.getElementById('edit-kapasitas').value),
+    stock: parseInt(document.getElementById('edit-stock').value),
+    harga: parseInt(document.getElementById('edit-harga').value),
+    tahun: parseInt(document.getElementById('edit-tahun').value),
+    baterai: document.getElementById('edit-baterai').value,
+    jarak_tempuh: document.getElementById('edit-jarak').value,
+    tenaga_motor: document.getElementById('edit-tenaga').value,
+    akselerasi: document.getElementById('edit-akselerasi').value,
+    pengisian: document.getElementById('edit-pengisian').value,
+    deskripsi: document.getElementById('edit-deskripsi').value
+  }
+  const { error } = await supabase.from('mobil').update(update).eq('id_mobil', id)
+  if (error) return alert('Gagal menyimpan perubahan.')
+  editModal.classList.add('hidden')
+  notif.classList.remove('hidden')
+  setTimeout(() => notif.classList.add('hidden'), 2000)
+  loadMobil()
+})
+
+loadMobil()
+</script>
+</body>
+</html>

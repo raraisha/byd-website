@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Admin - BYD</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script type="module">
+    import supabase from './supabase.js'
+    const mobilRes = await supabase.from('mobil').select('*')
+    const transaksiRes = await supabase.from('transaksi').select('*')
+    const usersRes = await supabase.from('users').select('*')
+
+    document.getElementById('totalMobil').textContent = mobilRes.data?.length || 0
+    document.getElementById('totalTransaksi').textContent = transaksiRes.data?.length || 0
+    document.getElementById('totalPelanggan').textContent = usersRes.data?.length || 0
+
+    const stokMenipis = mobilRes.data?.filter(m => m.stok <= 3) || []
+    if (stokMenipis.length > 0) {
+      const notifEl = document.getElementById('stokMenipis')
+      notifEl.innerHTML = stokMenipis.map(m => `<li>${m.nama_mobil} (Stok: ${m.stok})</li>`).join('')
+      notifEl.parentElement.classList.remove('hidden')
+    }
+
+    const transaksiData = transaksiRes.data || []
+    const merkCount = {}
+    transaksiData.forEach(t => {
+      const merk = t.merk || "Lainnya"
+      merkCount[merk] = (merkCount[merk] || 0) + 1
+    })
+
+    const ctx = document.getElementById('grafikMerk').getContext('2d')
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: Object.keys(merkCount),
+        datasets: [{
+          label: 'Jumlah Penjualan per Merk',
+          data: Object.values(merkCount),
+          backgroundColor: 'rgba(0, 200, 255, 0.6)',
+          borderColor: '#00ffff',
+          borderWidth: 1,
+          borderRadius: 5,
+        }]
+      },
+      options: {
+        scales: {
+          y: { beginAtZero: true, ticks: { color: '#fff' } },
+          x: { ticks: { color: '#fff' } }
+        },
+        plugins: {
+          legend: { labels: { color: '#00ffff' } }
+        }
+      }
+    })
+  </script>
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to bottom, #000108, #0a1625, #112b45);
+      color: #fff;
+      display: flex;
+      min-height: 100vh;
+      overflow: visible;
+    }
+    main {
+      margin-left: 250px;
+      padding: 50px;
+      width: 100%;
+    }
+    .glow {
+      text-shadow: 0 0 6px #00ffff, 0 0 12px #009dff;
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar include -->
+  <div id="sidebar-container"></div>
+  <script>
+    fetch("sidebar.html")
+      .then(res => res.text())
+      .then(html => document.getElementById("sidebar-container").innerHTML = html)
+  </script>
+
+  <!-- Main -->
+  <main>
+    <div class="absolute right-10 top-8 flex items-center gap-3">
+      <span class="text-sm text-gray-300">Admin BYD</span>
+      <img src="image/admin.png" alt="Admin" class="w-10 h-10 rounded-full border-2 border-cyan-400/40">
+    </div>
+
+    <h1 class="text-3xl font-semibold glow mb-10 mt-16">Dashboard Admin</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+      <div class="bg-[#0E1A2B]/70 p-6 rounded-xl border border-cyan-400/20 text-center shadow-lg">
+        <h2 class="text-cyan-300 text-xl mb-2">Total Mobil</h2>
+        <p id="totalMobil" class="text-3xl font-bold">0</p>
+      </div>
+      <div class="bg-[#0E1A2B]/70 p-6 rounded-xl border border-cyan-400/20 text-center shadow-lg">
+        <h2 class="text-cyan-300 text-xl mb-2">Total Transaksi</h2>
+        <p id="totalTransaksi" class="text-3xl font-bold">0</p>
+      </div>
+      <div class="bg-[#0E1A2B]/70 p-6 rounded-xl border border-cyan-400/20 text-center shadow-lg">
+        <h2 class="text-cyan-300 text-xl mb-2">Total Pelanggan</h2>
+        <p id="totalPelanggan" class="text-3xl font-bold">0</p>
+      </div>
+    </div>
+
+    <div class="bg-[#0E1A2B]/70 p-6 rounded-xl border border-cyan-400/20 mb-10">
+      <h2 class="text-cyan-300 text-xl mb-4">Grafik Penjualan per Merk</h2>
+      <canvas id="grafikMerk" height="100"></canvas>
+    </div>
+
+    <div class="hidden bg-red-900/30 border border-red-400/50 p-4 rounded-xl mb-6">
+      <h3 class="text-red-300 font-semibold mb-2">⚠️ Notifikasi Stok Menipis (≤ 3)</h3>
+      <ul id="stokMenipis" class="list-disc ml-6 text-red-200"></ul>
+    </div>
+  </main>
+</body>
+</html>
