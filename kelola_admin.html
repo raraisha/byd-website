@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kelola Akun Admin - BYD</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to bottom, #000108, #0a1625, #112b45);
+      color: #fff;
+      display: flex;
+      min-height: 100vh;
+    }
+    main { margin-left: 250px; padding: 50px; width: 100%; }
+    .glow { text-shadow: 0 0 6px #00ffff, 0 0 12px #009dff; }
+    @keyframes fade-in { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-fade-in { animation: fade-in 0.5s ease-out; }
+    label { font-size: 0.85rem; color: #a0aec0; }
+    .modal-bg {
+      backdrop-filter: blur(8px);
+      background-color: rgba(0, 0, 0, 0.6);
+    }
+    input {
+      transition: all 0.2s ease;
+    }
+    input:focus {
+      outline: none;
+      border: 1px solid #00ffff80;
+      box-shadow: 0 0 6px #00ffff40;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- === Sidebar === -->
+  <div id="sidebar-container"></div>
+
+  <!-- === Main === -->
+  <main>
+    <div class="absolute right-10 top-8 flex items-center gap-3">
+      <span class="text-sm text-gray-300">Admin BYD</span>
+      <img src="image/admin.png" alt="Admin" class="w-10 h-10 rounded-full border-2 border-cyan-400/40">
+    </div>
+
+    <h1 class="text-3xl font-semibold glow mb-10 mt-16">Kelola Akun Admin</h1>
+
+    <!-- Notifikasi -->
+    <div id="notifBerhasil" class="hidden bg-green-800/40 border border-green-400/40 text-green-200 p-4 rounded-lg mb-6 text-center"></div>
+
+    <!-- Tombol Tambah -->
+    <div class="flex justify-end mb-5">
+      <button onclick="openAddModal()" class="bg-cyan-600 hover:bg-cyan-700 text-white px-5 py-2 rounded-lg shadow-lg">+ Tambah Admin</button>
+    </div>
+
+    <!-- Tabel -->
+    <div class="overflow-x-auto bg-[#0E1A2B]/70 border border-cyan-400/20 rounded-xl p-6 shadow-lg">
+      <table class="min-w-full text-sm">
+        <thead class="text-cyan-300 border-b border-cyan-400/20">
+          <tr>
+            <th class="px-4 py-3 text-left">ID</th>
+            <th class="px-4 py-3 text-left">Nama</th>
+            <th class="px-4 py-3 text-left">Username</th>
+            <th class="px-4 py-3 text-left">Email</th>
+            <th class="px-4 py-3 text-left">Role</th>
+            <th class="px-4 py-3 text-center">Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="adminTableBody" class="text-gray-300"></tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- === Modal Edit === -->
+  <div id="editModal" class="hidden fixed inset-0 modal-bg flex items-center justify-center z-50 p-4 overflow-y-auto">
+    <div class="bg-[#0E1A2B]/90 border border-cyan-400/30 rounded-2xl w-full max-w-md shadow-2xl animate-fade-in my-10">
+      <div class="text-center pt-6">
+        <img src="image/logo.png" class="w-20 mx-auto mb-2 drop-shadow-lg" alt="BYD">
+        <h2 class="text-2xl font-semibold text-cyan-300 mb-2">Edit Data Admin</h2>
+        <hr class="border-cyan-400/30 mb-5 mx-8">
+      </div>
+      <form id="formEdit" class="space-y-3 px-6 pb-6 overflow-y-auto max-h-[70vh]">
+        <div><label>ID Admin</label><input id="editId" type="text" class="w-full bg-[#14273E] text-gray-400 p-2 rounded-lg border border-cyan-400/10" readonly></div>
+        <div><label>Nama Lengkap</label><input id="editName" type="text" class="w-full bg-[#14273E] text-white p-2 rounded-lg border border-cyan-400/10"></div>
+        <div><label>Username</label><input id="editUsername" type="text" class="w-full bg-[#14273E] text-white p-2 rounded-lg border border-cyan-400/10"></div>
+        <div><label>Email</label><input id="editEmail" type="email" class="w-full bg-[#14273E] text-white p-2 rounded-lg border border-cyan-400/10"></div>
+        <div><label>Password</label><input id="editPassword" type="password" class="w-full bg-[#14273E] text-white p-2 rounded-lg border border-cyan-400/10"></div>
+        <div><label>Role</label><input id="editRole" type="text" value="Admin" readonly class="w-full bg-[#14273E] text-gray-400 p-2 rounded-lg border border-cyan-400/10"></div>
+        <div class="flex justify-between pt-4">
+          <button type="button" id="closeModalEdit" class="bg-gray-600 px-5 py-2 rounded-lg hover:bg-gray-700 transition">Batal</button>
+          <button type="submit" class="bg-cyan-600 px-5 py-2 rounded-lg hover:bg-cyan-700 transition">Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- === Modal Tambah === -->
+  <div id="addModal" class="hidden fixed inset-0 modal-bg flex items-center justify-center z-50 p-4 overflow-y-auto">
+    <div class="bg-[#0E1A2B]/90 border border-cyan-400/30 rounded-2xl w-full max-w-md shadow-2xl animate-fade-in my-10">
+      <div class="text-center pt-6">
+        <img src="image/logo.png" class="w-20 mx-auto mb-2 drop-shadow-lg" alt="BYD">
+        <h2 class="text-2xl font-semibold text-cyan-300 mb-2">Tambah Admin Baru</h2>
+        <hr class="border-cyan-400/30 mb-5 mx-8">
+      </div>
+      <form id="formAdd" class="space-y-3 px-6 pb-6 overflow-y-auto max-h-[70vh]">
+        <div><label>Nama Lengkap</label><input id="addName" type="text" class="w-full bg-[#14273E] text-white p-2 rounded-lg border border-cyan-400/10" required></div>
+        <div><label>Username</label><input id="addUsername" type="text" class="w-full bg-[#14273E] text-white p-2 rounded-lg border border-cyan-400/10" required></div>
+        <div><label>Email</label><input id="addEmail" type="email" class="w-full bg-[#14273E] text-white p-2 rounded-lg border border-cyan-400/10" required></div>
+        <div><label>Password</label><input id="addPassword" type="password" class="w-full bg-[#14273E] text-white p-2 rounded-lg border border-cyan-400/10" required></div>
+        <div><label>Role</label><input id="addRole" type="text" value="Admin" readonly class="w-full bg-[#14273E] text-gray-400 p-2 rounded-lg border border-cyan-400/10"></div>
+        <div class="flex justify-between pt-4">
+          <button type="button" id="closeModalAdd" class="bg-gray-600 px-5 py-2 rounded-lg hover:bg-gray-700 transition">Batal</button>
+          <button type="submit" class="bg-cyan-600 px-5 py-2 rounded-lg hover:bg-cyan-700 transition">Tambah</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- === Sidebar Loader === -->
+  <script>
+    fetch("sidebar.html")
+      .then(res => res.text())
+      .then(html => { document.getElementById("sidebar-container").innerHTML = html })
+      .catch(err => console.error("Gagal memuat sidebar:", err));
+  </script>
+
+  <!-- === Supabase Logic === -->
+  <script type="module">
+    import supabase from './supabase.js'
+
+    const tbody = document.getElementById('adminTableBody')
+    const notif = document.getElementById('notifBerhasil')
+    const modalEdit = document.getElementById('editModal')
+    const modalAdd = document.getElementById('addModal')
+    const closeModalEdit = document.getElementById('closeModalEdit')
+    const closeModalAdd = document.getElementById('closeModalAdd')
+    const formEdit = document.getElementById('formEdit')
+    const formAdd = document.getElementById('formAdd')
+
+    let adminData = []
+    let selectedId = null
+
+    async function loadAdmin() {
+      const { data, error } = await supabase.from('admins').select('*').order('id_admin', { ascending: true })
+      if (error) { console.error('Gagal memuat data:', error); return }
+      adminData = data
+      tbody.innerHTML = data.map(a => `
+        <tr class="border-b border-cyan-400/10 hover:bg-[#0b1828] transition">
+          <td class="px-4 py-3">${a.id_admin}</td>
+          <td class="px-4 py-3">${a.name || '-'}</td>
+          <td class="px-4 py-3">${a.username || '-'}</td>
+          <td class="px-4 py-3">${a.email || '-'}</td>
+          <td class="px-4 py-3">${a.role || '-'}</td>
+          <td class="px-4 py-3 text-center space-x-2">
+            <button onclick="openEditModal('${a.id_admin}')" class="bg-cyan-600 hover:bg-cyan-700 text-white px-3 py-1 rounded-md">Edit</button>
+            <button onclick="deleteAdmin('${a.id_admin}')" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md">Hapus</button>
+          </td>
+        </tr>`).join('')
+    }
+
+    formAdd.onsubmit = async e => {
+      e.preventDefault()
+      const newAdmin = {
+        name: addName.value,
+        username: addUsername.value,
+        email: addEmail.value,
+        password: addPassword.value,
+        role: 'Admin',
+        created_at: new Date().toISOString(),
+      }
+      const { error } = await supabase.from('admins').insert([newAdmin])
+      if (error) { alert('❌ Gagal menambah admin!'); console.error(error) }
+      else { modalAdd.classList.add('hidden'); showNotif('✅ Admin berhasil ditambahkan!'); formAdd.reset(); loadAdmin() }
+    }
+
+    window.openEditModal = id_admin => {
+      const admin = adminData.find(a => a.id_admin == id_admin)
+      selectedId = id_admin
+      editId.value = admin.id_admin
+      editName.value = admin.name || ''
+      editUsername.value = admin.username || ''
+      editEmail.value = admin.email || ''
+      editPassword.value = admin.password || ''
+      editRole.value = 'Admin'
+      modalEdit.classList.remove('hidden')
+    }
+
+    formEdit.onsubmit = async e => {
+      e.preventDefault()
+      const updateData = {
+        name: editName.value,
+        username: editUsername.value,
+        email: editEmail.value,
+        password: editPassword.value,
+        updated_at: new Date().toISOString(),
+      }
+      const { error } = await supabase.from('admins').update(updateData).eq('id_admin', selectedId)
+      if (error) { alert('❌ Gagal menyimpan data!'); console.error(error) }
+      else { modalEdit.classList.add('hidden'); showNotif('✅ Data berhasil diedit!'); loadAdmin() }
+    }
+
+    window.deleteAdmin = async id_admin => {
+      if (!confirm('Yakin ingin menghapus admin ini?')) return
+      const { error } = await supabase.from('admins').delete().eq('id_admin', String(id_admin))
+      if (error) { console.error('Gagal menghapus:', error); alert('❌ Gagal menghapus data!') }
+      else { showNotif('🗑️ Data berhasil dihapus!'); loadAdmin() }
+    }
+
+    function showNotif(msg) {
+      notif.textContent = msg
+      notif.classList.remove('hidden')
+      notif.classList.add('animate-fade-in')
+      setTimeout(() => notif.classList.add('hidden'), 2500)
+    }
+
+    closeModalEdit.onclick = () => modalEdit.classList.add('hidden')
+    closeModalAdd.onclick = () => modalAdd.classList.add('hidden')
+    window.openAddModal = () => modalAdd.classList.remove('hidden')
+
+    loadAdmin()
+  </script>
+</body>
+</html>
