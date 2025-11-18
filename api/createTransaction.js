@@ -18,6 +18,19 @@ export default async function handler(req, res) {
   }
 
   try {
+    // Save transaction to database
+    await supabase.from("transaksi").insert({
+      id_user: customer?.id_user,
+      id_produk: customer?.id_produk,
+      jumlah_dp: Number(gross_amount),
+      kode_pembayaran: order_id,
+      status: "pending",
+      metode_pembayaran: null, // will be updated by webhook
+      sisa_pembayaran: 0, 
+      tanggal: new Date().toISOString(),
+      catatan: customer?.catatan || null
+    });
+
     // Parse request body
     const body = req.body;
     
@@ -52,8 +65,6 @@ export default async function handler(req, res) {
         gross_amount: Number(gross_amount)
       },
       customer_details: {
-        id_user: user.id,
-        id_produk: CaretPosition.id_mobil,
         first_name: customer?.first_name || 'Customer',
         email: customer?.email || 'customer@example.com',
         phone: customer?.phone || '08123456789'
