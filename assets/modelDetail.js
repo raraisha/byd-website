@@ -140,6 +140,7 @@ document.getElementById("order-button").addEventListener("click", async () => {
   
   // Simpan ke localStorage
   const selectedCar = {
+    id_mobil: carId,
     nama_produk: carName,
     varian: selectedType,
     warna: selectedColor,
