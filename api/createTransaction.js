@@ -18,33 +18,39 @@ export default async function handler(req, res) {
   try {
     const { order_id, gross_amount, customer } = req.body;
 
+    // Log for debugging
+    console.log('Received request:', { order_id, gross_amount, customer });
+
     // Validate input
     if (!order_id || !gross_amount || !customer) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    // Midtrans Server Key (set this in Vercel environment variables)
+    // Get Midtrans Server Key from environment
     const serverKey = process.env.MIDTRANS_SERVER_KEY;
     
     if (!serverKey) {
-      return res.status(500).json({ error: 'Midtrans server key not configured' });
+      console.error('Midtrans server key not found in environment');
+      return res.status(500).json({ error: 'Midtrans configuration missing' });
     }
 
-    // Create Midtrans transaction
+    // Prepare Midtrans request
     const params = {
       transaction_details: {
         order_id: order_id,
         gross_amount: parseInt(gross_amount)
       },
       customer_details: {
-        first_name: customer.first_name,
+        first_name: customer.first_name || 'Customer',
         email: customer.email,
         phone: customer.phone,
         billing_address: {
-          address: customer.address
+          address: customer.address || ''
         }
       }
     };
+
+    console.log('Calling Midtrans API...');
 
     // Call Midtrans Snap API
     const midtransResponse = await fetch('https://app.midtrans.com/snap/v1/transactions', {
@@ -57,6 +63,7 @@ export default async function handler(req, res) {
     });
 
     const midtransData = await midtransResponse.json();
+    console.log('Midtrans response:', midtransData);
 
     if (!midtransResponse.ok) {
       console.error('Midtrans error:', midtransData);
@@ -66,39 +73,20 @@ export default async function handler(req, res) {
       });
     }
 
-    // Save transaction to Supabase
-    const { data: transactionData, error: dbError } = await supabase
-      .from('transaksi')
-      .insert({
-        id_user: customer.id_user,
-        id_produk: customer.id_produk,
-        jumlah_dp: gross_amount,
-        kode_pembayaran: order_id,
-        status: 'pending',
-        metode_pembayaran: 'midtrans',
-        sisa_pembayaran: 0, // or calculate remaining payment
-        tanggal: new Date().toISOString()
-      })
-      .select()
-      .single();
+    // Save to Supabase (optional, add later)
+    // For now, just return the token
 
-    if (dbError) {
-      console.error('Database error:', dbError);
-      // Don't fail the request, just log it
-    }
-
-    // Return Snap token
     return res.status(200).json({
       token: midtransData.token,
-      redirect_url: midtransData.redirect_url,
-      transaction_id: transactionData?.id_transaksi
+      redirect_url: midtransData.redirect_url
     });
 
   } catch (error) {
     console.error('Server error:', error);
     return res.status(500).json({ 
       error: 'Internal server error',
-      message: error.message 
+      message: error.message,
+      stack: error.stack
     });
   }
 }
