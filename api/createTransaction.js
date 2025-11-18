@@ -52,6 +52,8 @@ export default async function handler(req, res) {
         gross_amount: Number(gross_amount)
       },
       customer_details: {
+        id_user: user.id,
+        id_produk: CaretPosition.id_mobil,
         first_name: customer?.first_name || 'Customer',
         email: customer?.email || 'customer@example.com',
         phone: customer?.phone || '08123456789'
