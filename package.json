@@ -19,6 +19,7 @@
   "homepage": "https://github.com/raraisha/byd-website#readme",
   "description": "",
   "dependencies": {
+    "@supabase/supabase-js": "^2.81.1",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "node-fetch": "^3.3.2"
