@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transactions - BYD</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="assets/style.css" />
+    <link rel="icon" type="image/byd-logo.png" href="image/byd-logo.png" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/three.min.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+        body {
+            background: linear-gradient(135deg, #0a1628 0%, #1a2f4a 100%);
+            min-height: 100vh;
+        }
+        .card-glow {
+            background: rgba(26, 47, 74, 0.6);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+        .card-glow:hover {
+            box-shadow: 0 8px 32px 0 rgba(34, 211, 238, 0.2);
+            transition: all 0.3s ease;
+        }
+        .nav-pill {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #06b6d4 0%, #22d3ee 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            box-shadow: 0 0 20px rgba(34, 211, 238, 0.6);
+            transform: translateY(-2px);
+        }
+        .btn-secondary {
+            border: 2px solid #22d3ee;
+            transition: all 0.3s ease;
+        }
+        .btn-secondary:hover {
+            background: rgba(34, 211, 238, 0.1);
+            box-shadow: 0 0 15px rgba(34, 211, 238, 0.3);
+        }
+        .icon-cyan {
+            color: #22d3ee;
+        }
+        .tab-active {
+            background: linear-gradient(135deg, #06b6d4 0%, #22d3ee 100%);
+            box-shadow: 0 0 15px rgba(34, 211, 238, 0.4);
+        }
+        .tab-inactive {
+            background: rgba(26, 47, 74, 0.4);
+        }
+        .tab-inactive:hover {
+            background: rgba(26, 47, 74, 0.6);
+        }
+        .status-sukses {
+            background: rgba(34, 197, 94, 0.2);
+            color: #4ade80;
+            border: 1px solid #4ade80;
+        }
+        .status-pending {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+            border: 1px solid #fbbf24;
+        }
+        .status-gagal {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid #ef4444;
+        }
+        .empty-state {
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body class="text-white">
+    <!-- Navbar -->
+    <div id="navbar"></div>
+    <script type="module" src="scripts/loadNavbar.js"></script>
+
+    <!-- Main Content -->
+    <main id="mainContent" class="max-w-7xl mx-auto px-8 py-12 pt-40" style="display: none;">
+        <!-- Page Title -->
+        <div class="text-center mb-8">
+            <h1 class="text-5xl font-bold text-cyan-400 mb-2">Transaksi</h1>
+            <p class="text-gray-400 text-lg">Kelola dan pantau riwayat transaksi Anda</p>
+        </div>
+
+        <!-- Tabs -->
+        <div class="flex gap-4 justify-center mb-8">
+            <button onclick="switchTab('ongoing')" id="tabOngoing" class="tab-active px-8 py-3 rounded-full font-semibold transition-all">
+                Sedang Berjalan
+            </button>
+            <button onclick="switchTab('history')" id="tabHistory" class="tab-inactive px-8 py-3 rounded-full font-semibold transition-all">
+                Riwayat
+            </button>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="card-glow rounded-3xl p-6">
+                <div class="flex items-center gap-3 mb-2">
+                    <svg class="w-6 h-6 icon-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <p class="text-gray-400">Pending</p>
+                </div>
+                <p class="text-3xl font-bold text-cyan-400" id="countPending">0</p>
+            </div>
+            
+            <div class="card-glow rounded-3xl p-6">
+                <div class="flex items-center gap-3 mb-2">
+                    <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <p class="text-gray-400">Sukses</p>
+                </div>
+                <p class="text-3xl font-bold text-green-400" id="countSukses">0</p>
+            </div>
+            
+            <div class="card-glow rounded-3xl p-6">
+                <div class="flex items-center gap-3 mb-2">
+                    <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <p class="text-gray-400">Gagal</p>
+                </div>
+                <p class="text-3xl font-bold text-red-400" id="countGagal">0</p>
+            </div>
+        </div>
+
+        <!-- Transactions List -->
+        <div id="transactionsList" class="space-y-6">
+            <!-- Transaction cards will be inserted here -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="card-glow rounded-3xl p-12 text-center empty-state" style="display: none;">
+            <svg class="w-24 h-24 mx-auto mb-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            <h3 class="text-2xl font-bold mb-2">Tidak Ada Transaksi</h3>
+            <p class="text-gray-400">Belum ada transaksi yang tersedia</p>
+        </div>
+    </main>
+
+    <!-- Transaction Detail Modal -->
+    <div id="detailModal" class="fixed inset-0 bg-black bg-opacity-75 hidden items-center justify-center z-50 overflow-y-auto">
+        <div class="card-glow rounded-3xl p-8 max-w-3xl w-full mx-4 my-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold">Detail Transaksi</h2>
+                <button onclick="closeDetailModal()" class="text-gray-400 hover:text-white">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <div id="modalContent" class="space-y-4">
+                <!-- Detail content will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import supabase from '../supabase.js';
+
+        let currentUser = null;
+        let allTransactions = [];
+        let currentTab = 'ongoing';
+
+        // Initialize
+        async function init() {
+            try {
+                const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+                if (userError || !user) {
+                    console.error(userError);
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                currentUser = user;
+                await loadTransactions();
+            } catch (error) {
+                console.error('Init error:', error);
+                alert('Gagal memuat data transaksi.');
+            }
+        }
+
+        // Load transactions
+        async function loadTransactions() {
+            try {
+                // First get user id_user from users table
+                const { data: userData, error: userError } = await supabase
+                    .from('users')
+                    .select('id_user')
+                    .eq('auth_id', currentUser.id)
+                    .single();
+
+                if (userError) throw userError;
+
+                // Fetch transactions with product details
+                const { data, error } = await supabase
+                    .from('transaksi')
+                    .select(`
+                        *,
+                        mobil:id_produk (*)
+                    `)
+                    .eq('id_user', userData.id_user)
+                    .order('tanggal', { ascending: false });
+
+                if (error) throw error;
+
+                allTransactions = data || [];
+                updateSummary();
+                displayTransactions();
+
+                document.getElementById('mainContent').style.display = 'block';
+            } catch (error) {
+                console.error('Load transactions error:', error);
+                alert('Gagal memuat transaksi.');
+            }
+        }
+
+        // Update summary counts
+        function updateSummary() {
+            const pending = allTransactions.filter(t => t.status === 'pending').length;
+            const sukses = allTransactions.filter(t => t.status === 'sukses').length;
+            const gagal = allTransactions.filter(t => t.status === 'gagal').length;
+
+            document.getElementById('countPending').textContent = pending;
+            document.getElementById('countSukses').textContent = sukses;
+            document.getElementById('countGagal').textContent = gagal;
+        }
+
+        // Display transactions based on current tab
+        function displayTransactions() {
+            const container = document.getElementById('transactionsList');
+            const emptyState = document.getElementById('emptyState');
+            
+            let filteredTransactions;
+            if (currentTab === 'ongoing') {
+                filteredTransactions = allTransactions.filter(t => t.status === 'pending');
+            } else {
+                filteredTransactions = allTransactions.filter(t => t.status === 'sukses' || t.status === 'gagal');
+            }
+
+            if (filteredTransactions.length === 0) {
+                container.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            container.innerHTML = filteredTransactions.map(transaction => createTransactionCard(transaction)).join('');
+        }
+
+        // Create transaction card HTML
+        function createTransactionCard(t) {
+            const statusClass = `status-${t.status}`;
+            const statusText = t.status.charAt(0).toUpperCase() + t.status.slice(1);
+            const productName = t.mobil?.nama_produk || 'Produk tidak ditemukan';
+            const productImage = t.mobil?.gambar || 'https://via.placeholder.com/400x300?text=No+Image';
+            const date = new Date(t.tanggal).toLocaleDateString('id-ID', { 
+                year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+            });
+
+            return `
+                <div class="card-glow rounded-3xl overflow-hidden cursor-pointer" onclick="window.showDetail(${t.id_transaksi})">
+                    <div class="md:flex">
+                        <div class="md:w-1/3">
+                            <img src="${productImage}" alt="${productName}" class="w-full h-48 md:h-full object-cover">
+                        </div>
+                        <div class="md:w-2/3 p-6">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <h3 class="text-2xl font-bold mb-1">${productName}</h3>
+                                    <p class="text-gray-400 text-sm">ID: #${t.kode_pembayaran || t.id_transaksi}</p>
+                                </div>
+                                <span class="px-4 py-1 rounded-full text-sm font-semibold ${statusClass}">
+                                    ${statusText}
+                                </span>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <p class="text-gray-400 text-sm mb-1">Jumlah DP</p>
+                                    <p class="text-white font-semibold">Rp ${Number(t.jumlah_dp || 0).toLocaleString('id-ID')}</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-400 text-sm mb-1">Sisa Pembayaran</p>
+                                    <p class="text-white font-semibold">Rp ${Number(t.sisa_pembayaran || 0).toLocaleString('id-ID')}</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-400 text-sm mb-1">Metode Pembayaran</p>
+                                    <p class="text-white font-semibold">${t.metode_pembayaran || '-'}</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-400 text-sm mb-1">Tanggal</p>
+                                    <p class="text-white font-semibold">${date}</p>
+                                </div>
+                            </div>
+                            
+                            ${t.catatan ? `
+                                <div class="border-t border-gray-700 pt-4">
+                                    <p class="text-gray-400 text-sm mb-1">Catatan</p>
+                                    <p class="text-white">${t.catatan}</p>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Switch tab
+        window.switchTab = function(tab) {
+            currentTab = tab;
+            
+            document.getElementById('tabOngoing').classList.remove('tab-active');
+            document.getElementById('tabOngoing').classList.add('tab-inactive');
+            document.getElementById('tabHistory').classList.remove('tab-active');
+            document.getElementById('tabHistory').classList.add('tab-inactive');
+            
+            if (tab === 'ongoing') {
+                document.getElementById('tabOngoing').classList.add('tab-active');
+                document.getElementById('tabOngoing').classList.remove('tab-inactive');
+            } else {
+                document.getElementById('tabHistory').classList.add('tab-active');
+                document.getElementById('tabHistory').classList.remove('tab-inactive');
+            }
+            
+            displayTransactions();
+        }
+
+        // Show transaction detail
+        window.showDetail = function(id) {
+            const transaction = allTransactions.find(t => t.id_transaksi === id);
+            if (!transaction) return;
+
+            const productName = transaction.mobil?.nama_mobil || 'Produk tidak ditemukan';
+            const productImage = transaction.mobil?.gambar || 'https://via.placeholder.com/400x300?text=No+Image';
+            const date = new Date(transaction.tanggal).toLocaleDateString('id-ID', { 
+                year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+            });
+            const statusClass = `status-${transaction.status}`;
+            const statusText = transaction.status.charAt(0).toUpperCase() + transaction.status.slice(1);
+
+            const modalContent = `
+                <div class="mb-6">
+                    <img src="${productImage}" alt="${productName}" class="w-full h-64 object-cover rounded-2xl mb-4">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-2xl font-bold mb-1">${productName}</h3>
+                            <p class="text-gray-400">ID: #${transaction.kode_pembayaran || transaction.id_transaksi}</p>
+                        </div>
+                        <span class="px-4 py-2 rounded-full text-sm font-semibold ${statusClass}">
+                            ${statusText}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="border-b border-gray-700 pb-4">
+                        <p class="text-gray-400 text-sm mb-1">Tanggal Transaksi</p>
+                        <p class="text-white text-lg">${date}</p>
+                    </div>
+                    
+                    <div class="border-b border-gray-700 pb-4">
+                        <p class="text-gray-400 text-sm mb-1">Jumlah DP</p>
+                        <p class="text-white text-lg font-bold">Rp ${Number(transaction.jumlah_dp || 0).toLocaleString('id-ID')}</p>
+                    </div>
+                    
+                    <div class="border-b border-gray-700 pb-4">
+                        <p class="text-gray-400 text-sm mb-1">Sisa Pembayaran</p>
+                        <p class="text-white text-lg font-bold">Rp ${Number(transaction.sisa_pembayaran || 0).toLocaleString('id-ID')}</p>
+                    </div>
+                    
+                    <div class="border-b border-gray-700 pb-4">
+                        <p class="text-gray-400 text-sm mb-1">Metode Pembayaran</p>
+                        <p class="text-white text-lg">${transaction.metode_pembayaran || '-'}</p>
+                    </div>
+                    
+                    ${transaction.bukti_pembayaran ? `
+                        <div class="border-b border-gray-700 pb-4">
+                            <p class="text-gray-400 text-sm mb-2">Bukti Pembayaran</p>
+                            <img src="${transaction.bukti_pembayaran}" alt="Bukti Pembayaran" class="w-full rounded-lg">
+                        </div>
+                    ` : ''}
+                    
+                    ${transaction.catatan ? `
+                        <div class="pb-4">
+                            <p class="text-gray-400 text-sm mb-1">Catatan</p>
+                            <p class="text-white">${transaction.catatan}</p>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+
+            document.getElementById('modalContent').innerHTML = modalContent;
+            document.getElementById('detailModal').classList.remove('hidden');
+            document.getElementById('detailModal').classList.add('flex');
+        }
+
+        // Close detail modal
+        window.closeDetailModal = function() {
+            document.getElementById('detailModal').classList.add('hidden');
+            document.getElementById('detailModal').classList.remove('flex');
+        }
+
+        // Initialize on page load
+        init();
+    </script>
+</body>
+</html>

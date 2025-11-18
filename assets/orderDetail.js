@@ -152,7 +152,9 @@ document.getElementById("order-form").addEventListener("submit", async (e) => {
           first_name: orderData.name,
           email: orderData.email,
           phone: orderData.phone,
-          address: orderData.address
+          address: orderData.address,
+          id_user: user.id,           // ✅ Add this
+          id_produk: car.id_produk
         }
       })
     });

@@ -1,86 +1,550 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>User Profile</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-900 text-white min-h-screen flex flex-col items-center p-6">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Profile - BYD</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="assets/style.css" />
+    <link rel="icon" type="image/byd-logo.png" href="image/byd-logo.png" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/three.min.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
 
-  <h1 class="text-3xl font-bold mb-6">Profile</h1>
+    <style>
+      body {
+        background: linear-gradient(135deg, #0a1628 0%, #1a2f4a 100%);
+        min-height: 100vh;
+      }
+      .card-glow {
+        background: rgba(26, 47, 74, 0.6);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+      }
+      .card-glow:hover {
+        box-shadow: 0 8px 32px 0 rgba(34, 211, 238, 0.2);
+        transition: all 0.3s ease;
+      }
+      .nav-pill {
+        background: rgba(15, 23, 42, 0.8);
+        backdrop-filter: blur(10px);
+      }
+      .profile-avatar {
+        box-shadow: 0 0 20px rgba(34, 211, 238, 0.5);
+      }
+      .btn-primary {
+        background: linear-gradient(135deg, #06b6d4 0%, #22d3ee 100%);
+        transition: all 0.3s ease;
+      }
+      .btn-primary:hover {
+        box-shadow: 0 0 20px rgba(34, 211, 238, 0.6);
+        transform: translateY(-2px);
+      }
+      .btn-secondary {
+        border: 2px solid #22d3ee;
+        transition: all 0.3s ease;
+      }
+      .btn-secondary:hover {
+        background: rgba(34, 211, 238, 0.1);
+        box-shadow: 0 0 15px rgba(34, 211, 238, 0.3);
+      }
+      .icon-cyan {
+        color: #22d3ee;
+      }
+    </style>
+  </head>
+  <body class="text-white">
+    <!-- Navbar -->
+    <div id="navbar"></div>
+    <script type="module" src="scripts/loadNavbar.js"></script>
 
-  <div class="bg-gray-800 rounded-xl shadow-lg p-6 w-full max-w-md">
-    <div class="mb-4">
-      <label class="block text-gray-400 mb-1">Name</label>
-      <p id="userName" class="text-white font-medium">Loading...</p>
+    <!-- Main Content -->
+    <main
+      id="mainContent"
+      class="pt-40 pb-20 px-10 bg-gradient-to-b from-[#000108] to-[#13223b]"
+    >
+      <!-- Profile Header Card -->
+      <div class="max-w-6xl mx-auto flex flex-col items-center gap-5">
+        <div class="card-glow rounded-3xl p-12 mb-8 text-center">
+          <div
+            class="w-32 h-32 mx-auto mb-6 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-full profile-avatar flex items-center justify-center text-5xl font-bold"
+            id="avatarInitials"
+          >
+            U
+          </div>
+          <h1 class="text-4xl font-bold mb-2" id="userName">Loading...</h1>
+          <p class="text-gray-400 text-lg mb-4" id="userEmail">
+            email@example.com
+          </p>
+          <p class="text-gray-300 max-w-2xl mx-auto" id="userBio">
+            No bio added yet
+          </p>
+
+          <div class="flex gap-4 justify-center mt-8">
+            <button
+              onclick="showEditModal()"
+              class="btn-primary px-8 py-3 rounded-full font-semibold"
+            >
+              Edit Profile
+            </button>
+            <button
+              onclick="showPasswordModal()"
+              class="btn-secondary px-8 py-3 rounded-full font-semibold text-cyan-400"
+            >
+              Change Password
+            </button>
+            <button
+              onclick="handleLogout()"
+              class="btn-secondary px-8 py-3 rounded-full font-semibold text-cyan-400"
+            >
+              Logout
+            </button>
+          </div>
+        </div>
+
+        <div class="max-w-6xl mx-auto flex flex-col items-center gap-5">
+          <!-- Information Cards Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Personal Information Card -->
+            <div class="card-glow rounded-3xl p-8">
+              <div class="flex items-center gap-3 mb-6">
+                <svg
+                  class="w-8 h-8 icon-cyan"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                  ></path>
+                </svg>
+                <h2 class="text-2xl font-bold">Personal Information</h2>
+              </div>
+
+              <div class="space-y-4">
+                <div class="border-b border-gray-700 pb-4">
+                  <p class="text-gray-400 text-sm mb-1">Full Name</p>
+                  <p class="text-white text-lg" id="infoName">-</p>
+                </div>
+                <div class="border-b border-gray-700 pb-4">
+                  <p class="text-gray-400 text-sm mb-1">Email Address</p>
+                  <p class="text-white text-lg" id="infoEmail">-</p>
+                </div>
+                <div class="border-b border-gray-700 pb-4">
+                  <p class="text-gray-400 text-sm mb-1">Phone Number</p>
+                  <p class="text-white text-lg" id="infoPhone">-</p>
+                </div>
+                <div class="pb-4">
+                  <p class="text-gray-400 text-sm mb-1">Address</p>
+                  <p class="text-white text-lg" id="infoAddress">-</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Account Settings Card -->
+            <div class="card-glow rounded-3xl p-8">
+              <div class="flex items-center gap-3 mb-6">
+                <svg
+                  class="w-8 h-8 icon-cyan"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                  ></path>
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  ></path>
+                </svg>
+                <h2 class="text-2xl font-bold">Account Settings</h2>
+              </div>
+
+              <div class="space-y-4">
+                <div class="border-b border-gray-700 pb-4">
+                  <p class="text-gray-400 text-sm mb-1">Account ID</p>
+                  <p
+                    class="text-white text-lg font-mono text-sm"
+                    id="infoUserId"
+                  >
+                    -
+                  </p>
+                </div>
+                <div class="border-b border-gray-700 pb-4">
+                  <p class="text-gray-400 text-sm mb-1">Member Since</p>
+                  <p class="text-white text-lg" id="infoCreatedAt">-</p>
+                </div>
+                <div class="border-b border-gray-700 pb-4">
+                  <p class="text-gray-400 text-sm mb-1">Last Updated</p>
+                  <p class="text-white text-lg" id="infoUpdatedAt">-</p>
+                </div>
+                <div class="pb-4">
+                  <p class="text-gray-400 text-sm mb-1">Location</p>
+                  <p class="text-white text-lg" id="infoLocation">-</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Edit Profile Modal -->
+    <div
+      id="editModal"
+      class="fixed inset-0 bg-black bg-opacity-75 hidden items-center justify-center z-50"
+    >
+      <div
+        class="card-glow rounded-3xl p-8 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto"
+      >
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-3xl font-bold">Edit Profile</h2>
+          <button
+            onclick="closeEditModal()"
+            class="text-gray-400 hover:text-white"
+          >
+            <svg
+              class="w-8 h-8"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              ></path>
+            </svg>
+          </button>
+        </div>
+
+        <form id="editForm" class="space-y-4">
+          <div>
+            <label class="text-gray-400 text-sm mb-2 block">Full Name</label>
+            <input
+              type="text"
+              id="editName"
+              class="w-full bg-slate-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-cyan-400"
+              required
+            />
+          </div>
+          <div>
+            <label class="text-gray-400 text-sm mb-2 block">Phone Number</label>
+            <input
+              type="tel"
+              id="editPhone"
+              class="w-full bg-slate-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-cyan-400"
+            />
+          </div>
+          <div>
+            <label class="text-gray-400 text-sm mb-2 block">Address</label>
+            <textarea
+              id="editAddress"
+              rows="3"
+              class="w-full bg-slate-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-cyan-400"
+            ></textarea>
+          </div>
+
+          <div class="flex gap-4 pt-4">
+            <button
+              type="submit"
+              class="btn-primary px-8 py-3 rounded-full font-semibold flex-1"
+            >
+              Save Changes
+            </button>
+            <button
+              type="button"
+              onclick="closeEditModal()"
+              class="btn-secondary px-8 py-3 rounded-full font-semibold text-cyan-400"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
-    <div class="mb-4">
-      <label class="block text-gray-400 mb-1">Email</label>
-      <p id="userEmail" class="text-white font-medium">Loading...</p>
+
+    <!-- Change Password Modal -->
+    <div
+      id="passwordModal"
+      class="fixed inset-0 bg-black bg-opacity-75 hidden items-center justify-center z-50"
+    >
+      <div class="card-glow rounded-3xl p-8 max-w-md w-full mx-4">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-3xl font-bold">Change Password</h2>
+          <button
+            onclick="closePasswordModal()"
+            class="text-gray-400 hover:text-white"
+          >
+            <svg
+              class="w-8 h-8"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              ></path>
+            </svg>
+          </button>
+        </div>
+
+        <form id="passwordForm" class="space-y-4">
+          <div>
+            <label class="text-gray-400 text-sm mb-2 block">New Password</label>
+            <input
+              type="password"
+              id="newPassword"
+              class="w-full bg-slate-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-cyan-400"
+              required
+              minlength="6"
+            />
+          </div>
+          <div>
+            <label class="text-gray-400 text-sm mb-2 block"
+              >Confirm Password</label
+            >
+            <input
+              type="password"
+              id="confirmPassword"
+              class="w-full bg-slate-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-cyan-400"
+              required
+              minlength="6"
+            />
+          </div>
+
+          <div class="flex gap-4 pt-4">
+            <button
+              type="submit"
+              class="btn-primary px-8 py-3 rounded-full font-semibold flex-1"
+            >
+              Update Password
+            </button>
+            <button
+              type="button"
+              onclick="closePasswordModal()"
+              class="btn-secondary px-8 py-3 rounded-full font-semibold text-cyan-400"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
-    <div class="mb-4">
-      <label class="block text-gray-400 mb-1">Phone</label>
-      <p id="userPhone" class="text-white font-medium">Loading...</p>
-    </div>
-    <div class="mb-4">
-      <label class="block text-gray-400 mb-1">Address</label>
-      <p id="userAddress" class="text-white font-medium">Loading...</p>
-    </div>
 
-    <button id="logoutBtn" class="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg font-semibold mt-4 transition-all">
-      Logout
-    </button>
-  </div>
+    <script type="module">
+      import supabase from "../supabase.js";
 
-<script type="module">
-  import supabase from '../supabase.js';
+      let currentUser = null;
+      let userData = null;
 
-  // 🧩 Ambil user dari Supabase Auth
-  async function loadUserProfile() {
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+      // Load user profile
+      async function loadUserProfile() {
+        const {
+          data: { user },
+          error: userError,
+        } = await supabase.auth.getUser();
 
-    if (userError || !user) {
-      console.error(userError);
-      window.location.href = 'login.html';
-      return;
-    }
+        if (userError || !user) {
+          console.error(userError);
+          window.location.href = "login.html";
+          return;
+        }
 
-    // 🧩 Ambil data lengkap dari tabel 'users' berdasarkan auth_id
-    const { data, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('auth_id', user.id)
-      .single();
+        currentUser = user;
 
-    if (error) {
-      console.error('Error fetching profile:', error);
-      alert('Gagal memuat profil.');
-      return;
-    }
+        // Fetch full user data from users table
+        const { data, error } = await supabase
+          .from("users")
+          .select("*")
+          .eq("auth_id", user.id)
+          .single();
 
-    // 🧩 Tampilkan di halaman
-    document.getElementById('userName').textContent = data.name || '-';
-    document.getElementById('userEmail').textContent = data.email || '-';
-    document.getElementById('userPhone').textContent = data.no_telp || '-';
-    document.getElementById('userAddress').textContent = data.address || '-';
-  }
+        if (error) {
+          console.error("Error fetching profile:", error);
+          alert("Gagal memuat profil.");
+          return;
+        }
 
-  // 🧩 Logout
-  async function logout() {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      console.error(error);
-      alert('Gagal logout.');
-      return;
-    }
+        userData = data;
+        displayUserData();
+      }
 
-    localStorage.clear(); // bersihkan cache
-    window.location.href = 'login.html';
-  }
+      // Display user data on page
+      function displayUserData() {
+        const initials = userData.name
+          ? userData.name
+              .split(" ")
+              .map((n) => n[0])
+              .join("")
+              .toUpperCase()
+          : "U";
 
-  document.getElementById('logoutBtn').addEventListener('click', logout);
-  loadUserProfile();
-  </script>
-</body>
+        document.getElementById("avatarInitials").textContent = initials;
+        document.getElementById("userName").textContent =
+          userData.name || "User";
+        document.getElementById("userEmail").textContent = userData.email;
+        document.getElementById("userBio").textContent =
+          userData.address || "No bio added yet";
+
+        document.getElementById("infoName").textContent = userData.name || "-";
+        document.getElementById("infoEmail").textContent = userData.email;
+        document.getElementById("infoPhone").textContent =
+          userData.no_telp || "-";
+        document.getElementById("infoAddress").textContent =
+          userData.address || "-";
+
+        document.getElementById("infoUserId").textContent = userData.id_user;
+        document.getElementById("infoCreatedAt").textContent = new Date(
+          userData.created_at
+        ).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        });
+        document.getElementById("infoUpdatedAt").textContent = new Date(
+          userData.updated_at
+        ).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        });
+
+        if (userData.latitude && userData.longitude) {
+          document.getElementById(
+            "infoLocation"
+          ).textContent = `${userData.latitude}, ${userData.longitude}`;
+        } else {
+          document.getElementById("infoLocation").textContent = "-";
+        }
+
+        document.getElementById("loading").classList.remove("active");
+        document.getElementById("mainContent").style.display = "block";
+      }
+
+      // Show edit modal
+      window.showEditModal = function () {
+        document.getElementById("editName").value = userData.name || "";
+        document.getElementById("editPhone").value = userData.no_telp || "";
+        document.getElementById("editAddress").value = userData.address || "";
+        document.getElementById("editModal").classList.remove("hidden");
+        document.getElementById("editModal").classList.add("flex");
+      };
+
+      // Close edit modal
+      window.closeEditModal = function () {
+        document.getElementById("editModal").classList.add("hidden");
+        document.getElementById("editModal").classList.remove("flex");
+      };
+
+      // Handle edit form submission
+      document
+        .getElementById("editForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          try {
+            const { error } = await supabase
+              .from("users")
+              .update({
+                name: document.getElementById("editName").value,
+                no_telp: document.getElementById("editPhone").value,
+                address: document.getElementById("editAddress").value,
+                updated_at: new Date().toISOString(),
+              })
+              .eq("id_user", userData.id_user);
+
+            if (error) throw error;
+
+            alert("Profil berhasil diperbarui!");
+            window.closeEditModal();
+            await loadUserProfile();
+          } catch (error) {
+            console.error("Update error:", error);
+            alert("Gagal memperbarui profil.");
+          }
+        });
+
+      // Show password modal
+      window.showPasswordModal = function () {
+        document.getElementById("passwordForm").reset();
+        document.getElementById("passwordModal").classList.remove("hidden");
+        document.getElementById("passwordModal").classList.add("flex");
+      };
+
+      // Close password modal
+      window.closePasswordModal = function () {
+        document.getElementById("passwordModal").classList.add("hidden");
+        document.getElementById("passwordModal").classList.remove("flex");
+      };
+
+      // Handle password form submission
+      document
+        .getElementById("passwordForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const newPassword = document.getElementById("newPassword").value;
+          const confirmPassword =
+            document.getElementById("confirmPassword").value;
+
+          if (newPassword !== confirmPassword) {
+            alert("Password tidak cocok!");
+            return;
+          }
+
+          try {
+            const { error } = await supabase.auth.updateUser({
+              password: newPassword,
+            });
+
+            if (error) throw error;
+
+            alert("Password berhasil diperbarui!");
+            window.closePasswordModal();
+          } catch (error) {
+            console.error("Password update error:", error);
+            alert("Gagal memperbarui password.");
+          }
+        });
+
+      // Handle logout
+      window.handleLogout = async function () {
+        if (confirm("Apakah Anda yakin ingin logout?")) {
+          try {
+            const { error } = await supabase.auth.signOut();
+            if (error) throw error;
+
+            localStorage.clear();
+            window.location.href = "login.html";
+          } catch (error) {
+            console.error("Logout error:", error);
+            alert("Gagal logout.");
+          }
+        }
+      };
+
+      // Initialize on page load
+      loadUserProfile();
+    </script>
+  </body>
 </html>
