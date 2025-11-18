@@ -161,18 +161,7 @@ document.getElementById("order-form").addEventListener("submit", async (e) => {
 
     const text = await res.text();
   console.log("Raw response:", text);
-  console.log("Status:", res.status);
-  
-  // Try to parse as JSON
-  let data;
-  try {
-    data = JSON.parse(text);
-  } catch (e) {
-    console.error("Response is not JSON:", text);
-    alert("Server error: " + text.substring(0, 300));
-    return;
-  }
-
+  const data = JSON.parse(text);
   if (data.error) {
     alert("Error: " + data.error);
     console.error("Backend error:", data);
