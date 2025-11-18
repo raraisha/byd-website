@@ -93,7 +93,7 @@ export default async function handler(req, res) {
             jumlah_dp: Number(gross_amount),
             kode_pembayaran: order_id,
             status: 'pending',
-            metode_pembayaran: 'midtrans',
+            metode_pembayaran: null,
             sisa_pembayaran: 0, // Adjust this based on your calculation
             tanggal: new Date().toISOString(),
             catatan: customer.catatan || null
