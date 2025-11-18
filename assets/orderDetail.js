@@ -148,6 +148,13 @@ document.getElementById("order-form").addEventListener("submit", async (e) => {
 
   // --- 1️⃣ Request Snap Token ke backend PHP ---
   try {
+    console.log('=== DEBUG INFO ===');
+    console.log('profile object:', profile);
+    console.log('profile.id_user:', profile?.id_user);
+    console.log('car object:', car);
+    console.log('car.id_mobil:', car?.id_mobil);
+    console.log('user.id (auth_id):', user.id);
+    
     const numericUserId = profile.id_user; // ✅ This is the key!
     
     console.log('Sending to backend:', {
