@@ -140,13 +140,19 @@ document.getElementById("order-form").addEventListener("submit", async (e) => {
   // Simpan sementara ke localStorage
   localStorage.setItem("bydOrder", JSON.stringify(orderData));
 
+  const generateOrderId = () => {
+  const timestamp = Date.now();
+  const random = Math.floor(Math.random() * 10000);
+  return `ORDER-${timestamp}-${random}`;
+};
+
   // --- 1️⃣ Request Snap Token ke backend PHP ---
   try {
     const res = await fetch("https://byd-website.vercel.app/api/createTransaction", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        order_id: "ORDER-" + Date.now(),
+        order_id: generateOrderId(),
         gross_amount: orderData.car_price,
         customer: {
           first_name: orderData.name,
