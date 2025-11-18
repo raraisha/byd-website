@@ -159,13 +159,31 @@ document.getElementById("order-form").addEventListener("submit", async (e) => {
       })
     });
 
-    const data = await res.json();
+    const text = await res.text();
+  console.log("Raw response:", text);
+  console.log("Status:", res.status);
+  
+  // Try to parse as JSON
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch (e) {
+    console.error("Response is not JSON:", text);
+    alert("Server error: " + text.substring(0, 300));
+    return;
+  }
 
-    if (!data.token) {
-      alert("Gagal membuat transaksi Midtrans.");
-      console.error(data);
-      return;
-    }
+  if (data.error) {
+    alert("Error: " + data.error);
+    console.error("Backend error:", data);
+    return;
+  }
+
+  if (!data.token) {
+    alert("Gagal membuat transaksi Midtrans.");
+    console.error(data);
+    return;
+  }
 
     // --- 2️⃣ Panggil Snap popup ---
     window.snap.pay(data.token, {
