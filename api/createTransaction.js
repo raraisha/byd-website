@@ -1,5 +1,3 @@
-console.log("MIDTRANS SERVER KEY LOADED:", process.env.MIDTRANS_SERVER_KEY);
-
 import { createClient } from '@supabase/supabase-js';
 
 // Initialize Supabase client for serverless environment
@@ -8,6 +6,7 @@ const supabase = createClient(
   process.env.SUPABASE_KEY // Use SERVICE_KEY for backend, not ANON_KEY
 );
 export default async function handler(req, res) {
+  console.log("MIDTRANS SERVER KEY LOADED:", process.env.MIDTRANS_SERVER_KEY);
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
