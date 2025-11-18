@@ -148,6 +148,14 @@ document.getElementById("order-form").addEventListener("submit", async (e) => {
 
   // --- 1️⃣ Request Snap Token ke backend PHP ---
   try {
+    const numericUserId = profile.id_user; // ✅ This is the key!
+    
+    console.log('Sending to backend:', {
+      id_user: numericUserId,
+      id_produk: car.id_mobil,
+      auth_id: user.id
+    });
+
     const res = await fetch("https://byd-website.vercel.app/api/createTransaction", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -159,7 +167,7 @@ document.getElementById("order-form").addEventListener("submit", async (e) => {
           email: orderData.email,
           phone: orderData.phone,
           address: orderData.address,
-          id_user: user.id,           // ✅ Add this
+          id_user: numericUserId,         // ✅ Add this
           id_produk: car.id_mobil
         }
       })
