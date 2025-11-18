@@ -160,7 +160,7 @@ document.getElementById("order-form").addEventListener("submit", async (e) => {
           phone: orderData.phone,
           address: orderData.address,
           id_user: user.id,           // ✅ Add this
-          id_produk: car.id_produk
+          id_produk: car.id_mobil
         }
       })
     });
