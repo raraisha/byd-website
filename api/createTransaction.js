@@ -74,47 +74,6 @@ export default async function handler(req, res) {
 
     const data = await response.json();
 
-        // 🔥 Save transaction to database
-    let transactionId = null;
-    if (customer?.id_user && customer?.id_produk) {
-      try {
-        console.log('Saving to database...', {
-          id_user: customer.id_user,
-          id_produk: customer.id_produk,
-          jumlah_dp: Number(gross_amount),
-          kode_pembayaran: order_id
-        });
-
-        const { data: dbData, error: dbError } = await supabase
-          .from('transaksi')
-          .insert({
-            id_user: customer.id_user,
-            id_produk: customer.id_produk,
-            jumlah_dp: Number(gross_amount),
-            kode_pembayaran: order_id,
-            status: 'pending',
-            metode_pembayaran: null,
-            sisa_pembayaran: 0, // Adjust this based on your calculation
-            tanggal: new Date().toISOString(),
-            catatan: customer.catatan || null
-          })
-          .select()
-          .single();
-
-        if (dbError) {
-          console.error('Database error:', dbError);
-          // Don't fail the whole request, just log it
-        } else {
-          console.log('Transaction saved successfully:', dbData);
-          transactionId = dbData.id_transaksi;
-        }
-      } catch (dbErr) {
-        console.error('Database exception:', dbErr);
-      }
-    } else {
-      console.warn('Missing id_user or id_produk, skipping database save');
-    }
-
     if (!response.ok) {
       return res.status(response.status).json({
         error: 'Midtrans error',
