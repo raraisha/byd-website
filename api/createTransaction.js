@@ -1,3 +1,5 @@
+console.log("MIDTRANS SERVER KEY LOADED:", process.env.MIDTRANS_SERVER_KEY);
+
 import { createClient } from '@supabase/supabase-js';
 
 // Initialize Supabase client for serverless environment
@@ -113,7 +115,7 @@ export default async function handler(req, res) {
     } else {
       console.warn('Missing id_user or id_produk, skipping database save');
     }
-    
+
     if (!response.ok) {
       return res.status(response.status).json({
         error: 'Midtrans error',
