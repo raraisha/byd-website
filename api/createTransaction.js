@@ -1,92 +1,104 @@
-import fetch from "node-fetch";
+// api/createTransaction.js
+import supabase from "../supabase.js";
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method Not Allowed" });
+  // Enable CORS
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    // 🔒 Ambil server key dari environment (Vercel)
+    const { order_id, gross_amount, customer } = req.body;
+
+    // Validate input
+    if (!order_id || !gross_amount || !customer) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    // Midtrans Server Key (set this in Vercel environment variables)
     const serverKey = process.env.MIDTRANS_SERVER_KEY;
-    const auth = Buffer.from(serverKey + ":").toString("base64");
+    
+    if (!serverKey) {
+      return res.status(500).json({ error: 'Midtrans server key not configured' });
+    }
 
-    const { order_id, gross_amount, customer, paymentMethod } = req.body;
-
-    // 🔧 Data transaksi untuk Midtrans
-    const transaction = {
+    // Create Midtrans transaction
+    const params = {
       transaction_details: {
-        order_id,
-        gross_amount,
+        order_id: order_id,
+        gross_amount: parseInt(gross_amount)
       },
       customer_details: {
         first_name: customer.first_name,
         email: customer.email,
         phone: customer.phone,
-        billing_address: { address: customer.address },
-      },
-      enabled_payments: ["bca_va", "bni_va", "bri_va", "qris", "credit_card"],
-    };
-
-    // 🔗 Kirim ke Midtrans Snap API
-    const midtransRes = await fetch(
-      "https://app.sandbox.midtrans.com/snap/v1/transactions",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Basic ${auth}`,
-        },
-        body: JSON.stringify(transaction),
+        billing_address: {
+          address: customer.address
+        }
       }
-    );
-
-    const result = await midtransRes.json();
-    if (!midtransRes.ok) {
-      console.error("Midtrans error:", result);
-      return res.status(400).json(result);
-    }
-
-    // 💾 Simpan transaksi ke Supabase
-    const supabaseUrl = process.env.SUPABASE_URL;
-    const supabaseKey = process.env.SUPABASE_KEY;
-
-    const insertData = {
-      id_user: customer.id_user || null,
-      id_produk: customer.id_produk || null,
-      jumlah_dp: gross_amount * 0.05,
-      metode_pembayaran: paymentMethod || "qris",
-      status: "pending",
-      kode_pembayaran: order_id,
-      sisa_pembayaran: gross_amount * 0.95,
     };
 
-    const saveRes = await fetch(`${supabaseUrl}/rest/v1/transaksi`, {
-      method: "POST",
+    // Call Midtrans Snap API
+    const midtransResponse = await fetch('https://app.midtrans.com/snap/v1/transactions', {
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
-        apikey: supabaseKey,
-        Authorization: `Bearer ${supabaseKey}`,
-        Prefer: "return=minimal",
+        'Content-Type': 'application/json',
+        'Authorization': 'Basic ' + Buffer.from(serverKey + ':').toString('base64')
       },
-      body: JSON.stringify(insertData),
+      body: JSON.stringify(params)
     });
 
-    if (!saveRes.ok) {
-      const errText = await saveRes.text();
-      console.error("Supabase insert error:", errText);
+    const midtransData = await midtransResponse.json();
+
+    if (!midtransResponse.ok) {
+      console.error('Midtrans error:', midtransData);
+      return res.status(500).json({ 
+        error: 'Midtrans API error', 
+        details: midtransData 
+      });
     }
 
-    // ✅ Berhasil
+    // Save transaction to Supabase
+    const { data: transactionData, error: dbError } = await supabase
+      .from('transaksi')
+      .insert({
+        id_user: customer.id_user,
+        id_produk: customer.id_produk,
+        jumlah_dp: gross_amount,
+        kode_pembayaran: order_id,
+        status: 'pending',
+        metode_pembayaran: 'midtrans',
+        sisa_pembayaran: 0, // or calculate remaining payment
+        tanggal: new Date().toISOString()
+      })
+      .select()
+      .single();
+
+    if (dbError) {
+      console.error('Database error:', dbError);
+      // Don't fail the request, just log it
+    }
+
+    // Return Snap token
     return res.status(200).json({
-      token: result.token,
-      redirect_url: result.redirect_url,
-      message: "Transaksi berhasil dibuat dan disimpan.",
+      token: midtransData.token,
+      redirect_url: midtransData.redirect_url,
+      transaction_id: transactionData?.id_transaksi
     });
-  } catch (err) {
-    console.error("Server error:", err);
-    return res.status(500).json({
-      error: "Terjadi kesalahan server",
-      details: err.message,
+
+  } catch (error) {
+    console.error('Server error:', error);
+    return res.status(500).json({ 
+      error: 'Internal server error',
+      message: error.message 
     });
   }
 }
