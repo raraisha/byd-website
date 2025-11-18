@@ -2,91 +2,91 @@
 import supabase from "../supabase.js";
 
 export default async function handler(req, res) {
-  // Enable CORS
+  // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
+  // Handle preflight
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
 
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-
   try {
-    const { order_id, gross_amount, customer } = req.body;
-
-    // Log for debugging
-    console.log('Received request:', { order_id, gross_amount, customer });
-
-    // Validate input
-    if (!order_id || !gross_amount || !customer) {
-      return res.status(400).json({ error: 'Missing required fields' });
+    // Parse request body
+    const body = req.body;
+    
+    if (!body) {
+      return res.status(400).json({ error: 'No body provided' });
     }
 
-    // Get Midtrans Server Key from environment
+    const { order_id, gross_amount, customer } = body;
+
+    // Basic validation
+    if (!order_id || !gross_amount) {
+      return res.status(400).json({ 
+        error: 'Missing required fields',
+        received: { order_id, gross_amount }
+      });
+    }
+
+    // Check for Midtrans key
     const serverKey = process.env.MIDTRANS_SERVER_KEY;
     
     if (!serverKey) {
-      console.error('Midtrans server key not found in environment');
-      return res.status(500).json({ error: 'Midtrans configuration missing' });
+      return res.status(500).json({ 
+        error: 'Server configuration error',
+        message: 'MIDTRANS_SERVER_KEY not set'
+      });
     }
 
     // Prepare Midtrans request
     const params = {
       transaction_details: {
-        order_id: order_id,
-        gross_amount: parseInt(gross_amount)
+        order_id: String(order_id),
+        gross_amount: Number(gross_amount)
       },
       customer_details: {
-        first_name: customer.first_name || 'Customer',
-        email: customer.email,
-        phone: customer.phone,
-        billing_address: {
-          address: customer.address || ''
-        }
+        first_name: customer?.first_name || 'Customer',
+        email: customer?.email || 'customer@example.com',
+        phone: customer?.phone || '08123456789'
       }
     };
 
-    console.log('Calling Midtrans API...');
+    // Create authorization header
+    const auth = Buffer.from(serverKey + ':').toString('base64');
 
-    // Call Midtrans Snap API
-    const midtransResponse = await fetch('https://app.midtrans.com/snap/v1/transactions', {
+    // Call Midtrans
+    const response = await fetch('https://app.midtrans.com/snap/v1/transactions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Basic ' + Buffer.from(serverKey + ':').toString('base64')
+        'Accept': 'application/json',
+        'Authorization': `Basic ${auth}`
       },
       body: JSON.stringify(params)
     });
 
-    const midtransData = await midtransResponse.json();
-    console.log('Midtrans response:', midtransData);
+    const data = await response.json();
 
-    if (!midtransResponse.ok) {
-      console.error('Midtrans error:', midtransData);
-      return res.status(500).json({ 
-        error: 'Midtrans API error', 
-        details: midtransData 
+    if (!response.ok) {
+      return res.status(response.status).json({
+        error: 'Midtrans error',
+        details: data
       });
     }
 
-    // Save to Supabase (optional, add later)
-    // For now, just return the token
-
+    // Return success
     return res.status(200).json({
-      token: midtransData.token,
-      redirect_url: midtransData.redirect_url
+      token: data.token,
+      redirect_url: data.redirect_url
     });
 
   } catch (error) {
-    console.error('Server error:', error);
-    return res.status(500).json({ 
+    console.error('Error:', error);
+    return res.status(500).json({
       error: 'Internal server error',
-      message: error.message,
-      stack: error.stack
+      message: error.message
     });
   }
 }
