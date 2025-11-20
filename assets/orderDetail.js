@@ -23,10 +23,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.querySelector("#order-name").textContent = car.nama_produk;
   document.querySelector("#order-color").textContent = car.warna;
   document.querySelector("#order-type").textContent = car.varian;
-  document.querySelector("#order-price").textContent = `Rp ${parseFloat(car.harga).toLocaleString("id-ID")}`;
-  window.price = parseFloat(car.harga);
+  document.querySelector("#order-price").textContent =
+    `Rp ${parseFloat(car.harga).toLocaleString("id-ID")}`;
+  
+  window.price = Number(car.harga);
 
-  // --- 3️⃣ Ambil profil user dari tabel users Supabase ---
+  // --- 3️⃣ Ambil profil user dari Supabase ---
   const { data: profile, error } = await supabase
     .from("users")
     .select("*")
@@ -36,15 +38,15 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (error) {
     console.error("Gagal memuat profil:", error);
     alert("Gagal memuat data pengguna.");
-  } else {
-    // Isi otomatis form
-    document.getElementById("fullName").value = profile.name || "";
-    document.getElementById("email").value = profile.email || user.email;
-    document.getElementById("phone").value = profile.no_telp || "";
-    document.getElementById("address").value = profile.address || "";
   }
 
-  // --- 4️⃣ Setup Leaflet Map untuk alamat ---
+  // Isi otomatis form
+  document.getElementById("fullName").value = profile?.name || "";
+  document.getElementById("email").value = profile?.email || user.email;
+  document.getElementById("phone").value = profile?.no_telp || "";
+  document.getElementById("address").value = profile?.address || "";
+
+  // --- 4️⃣ Map (Leaflet) ---
   const map = L.map("map").setView([-6.200000, 106.816666], 12);
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 19,
@@ -72,7 +74,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     debounceTimer = setTimeout(() => {
-      fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&addressdetails=1&limit=5`)
+      fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=5`)
         .then(res => res.json())
         .then(data => {
           suggestionBox.innerHTML = "";
@@ -80,20 +82,25 @@ document.addEventListener("DOMContentLoaded", async () => {
             suggestionBox.classList.add("hidden");
             return;
           }
+
           data.forEach(place => {
             const li = document.createElement("li");
             li.textContent = place.display_name;
             li.className = "px-4 py-2 hover:bg-gray-800 cursor-pointer text-gray-300";
+
             li.addEventListener("click", () => {
               addressInput.value = place.display_name;
               document.getElementById("latitude").value = place.lat;
               document.getElementById("longitude").value = place.lon;
+
               map.setView([place.lat, place.lon], 15);
               marker.setLatLng([place.lat, place.lon]);
               suggestionBox.classList.add("hidden");
             });
+
             suggestionBox.appendChild(li);
           });
+
           suggestionBox.classList.remove("hidden");
         });
     }, 400);
@@ -103,164 +110,107 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!e.target.closest("#address")) suggestionBox.classList.add("hidden");
   });
 
-
-  // --- 7️⃣ Hitung dan tampilkan jumlah pembayaran (DP / Full) ---
+  // --- 6️⃣ DP / Full Payment ---
   const dpRate = 0.05;
   const paymentRadios = document.querySelectorAll('input[name="payment-option"]');
   const paymentAmount = document.getElementById("payment-amount");
-  const fullRadio = document.querySelector('input[value="full"]');
-  if (fullRadio) fullRadio.checked = true;
 
-  function updatePaymentDisplay(selected) {
-    const dpAmount = window.price * dpRate;
-    paymentAmount.textContent = selected === "full"
-      ? `Rp ${window.price.toLocaleString("id-ID")}`
-      : `Rp ${dpAmount.toLocaleString("id-ID")}`;
+  function updatePayment(selected) {
+    paymentAmount.textContent =
+      selected === "full"
+        ? `Rp ${window.price.toLocaleString("id-ID")}`
+        : `Rp ${(window.price * dpRate).toLocaleString("id-ID")}`;
   }
-  paymentRadios.forEach(radio => {
-    radio.addEventListener("change", (e) => updatePaymentDisplay(e.target.value));
+
+  updatePayment("full");
+
+  paymentRadios.forEach(r => {
+    r.addEventListener("change", (e) => updatePayment(e.target.value));
   });
-  updatePaymentDisplay("full");
 
-document.getElementById("order-form").addEventListener("submit", async (e) => {
-  e.preventDefault();
+  // --- 7️⃣ Submit Order ---
+  document.getElementById("order-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-  const orderData = {
-    user_id: user.id,
-    name: document.getElementById("fullName").value || profile.name,
-    email: document.getElementById("email").value || profile.email || user.email,
-    phone: document.getElementById("phone").value || profile.no_telp,
-    address: document.getElementById("address").value || profile.address,
-    status: "pending",
-    created_at: new Date().toISOString(),
-    car_name: car.nama_produk,
-    car_price: car.harga,
-  };
+    const orderData = {
+      user_id: user.id,
+      name: document.getElementById("fullName").value,
+      email: document.getElementById("email").value,
+      phone: document.getElementById("phone").value,
+      address: document.getElementById("address").value,
+      status: "pending",
+      created_at: new Date().toISOString(),
+      car_name: car.nama_produk,
+      car_price: Number(car.harga),
+    };
 
-  // Simpan sementara ke localStorage
-  localStorage.setItem("bydOrder", JSON.stringify(orderData));
+    localStorage.setItem("bydOrder", JSON.stringify(orderData));
 
-  const generateOrderId = () => {
-  const timestamp = Date.now();
-  const random = Math.floor(Math.random() * 10000);
-  return `ORDER-${timestamp}-${random}`;
-};
+    // Generate ID
+    const generateOrderId = () => {
+      const timestamp = Date.now();
+      const random = Math.floor(Math.random() * 10000);
+      return `ORDER-${timestamp}-${random}`;
+    };
 
-  // --- 1️⃣ Request Snap Token ke backend PHP ---
-  try {
-    console.log('=== DEBUG INFO ===');
-    console.log('profile object:', profile);
-    console.log('profile.id_user:', profile?.id_user);
-    console.log('car object:', car);
-    console.log('car.id_mobil:', car?.id_mobil);
-    console.log('user.id (auth_id):', user.id);
-    
-    const numericUserId = profile.id_user; // ✅ This is the key!
-    
-    console.log('Sending to backend:', {
-      id_user: numericUserId,
-      id_produk: car.id_mobil,
-      auth_id: user.id
-    });
+    // --- ✨ FIX MIDTRANS REQUEST ✨ ---
+    try {
+      console.log("Sending request to Midtrans backend...");
 
-    const res = await fetch("https://byd-website.vercel.app/api/createTransaction", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        order_id: generateOrderId(),
-        gross_amount: orderData.car_price,
-        customer: {
-          first_name: orderData.name,
-          email: orderData.email,
-          phone: orderData.phone,
-          address: orderData.address,
-          id_user: numericUserId,         // ✅ Add this
-          id_produk: car.id_mobil
-        }
-      })
-    });
+      const res = await fetch("https://byd-website.vercel.app/api/createTransaction", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          order_id: generateOrderId(),
+          gross_amount: Number(orderData.car_price), // FIXED
+          payment_type: "bank_transfer",             // FIXED
+          enabled_payments: ["bank_transfer"],       // FIXED
+          customer: {
+            first_name: orderData.name,
+            email: orderData.email,
+            phone: orderData.phone,
+            address: orderData.address,
+            id_user: profile.id_user,
+            id_produk: car.id_mobil
+          }
+        })
+      });
 
-    const text = await res.text();
-  console.log("Raw response:", text);
-  const data = JSON.parse(text);
-  if (data.error) {
-    alert("Error: " + data.error);
-    console.error("Backend error:", data);
-    return;
-  }
+      const text = await res.text();
+      console.log("Backend response:", text);
 
-  if (!data.token) {
-    alert("Gagal membuat transaksi Midtrans.");
-    console.error(data);
-    return;
-  }
-
-    // --- 2️⃣ Panggil Snap popup ---
-    window.snap.pay(data.token, {
-      onSuccess: function(result){
-        console.log("Payment success:", result);
-        // Update status order
-        orderData.status = "success";
-        localStorage.setItem("bydOrder", JSON.stringify(orderData));
-        window.location.href = "payment_success.html";
-      },
-      onPending: function(result){
-        console.log("Payment pending:", result);
-        orderData.status = "pending";
-        localStorage.setItem("bydOrder", JSON.stringify(orderData));
-        alert("Pembayaran sedang menunggu konfirmasi.");
-      },
-      onError: function(result){
-        console.log("Payment error:", result);
-        orderData.status = "failed";
-        localStorage.setItem("bydOrder", JSON.stringify(orderData));
-        alert("Pembayaran gagal.");
-      },
-      onClose: function(){
-        alert("Popup pembayaran ditutup.");
+      const data = JSON.parse(text);
+      if (!data.token) {
+        alert("Gagal membuat transaksi Midtrans.");
+        console.error(data);
+        return;
       }
-    });
 
-  } catch(err) {
-    console.error(err);
-    alert("Terjadi kesalahan saat memproses pembayaran.");
-  }
-});
-});
+      // --- Snap Popup ---
+      window.snap.pay(data.token, {
+        onSuccess: function(result){
+          orderData.status = "success";
+          localStorage.setItem("bydOrder", JSON.stringify(orderData));
+          window.location.href = "payment_success.html";
+        },
+        onPending: function(result){
+          orderData.status = "pending";
+          localStorage.setItem("bydOrder", JSON.stringify(orderData));
+          alert("Pembayaran pending.");
+        },
+        onError: function(result){
+          orderData.status = "failed";
+          localStorage.setItem("bydOrder", JSON.stringify(orderData));
+          alert("Pembayaran gagal.");
+        },
+        onClose: function(){
+          alert("Popup pembayaran ditutup.");
+        }
+      });
 
-// --- Fungsi countdown timer ---
-function startCountdown(duration, modalContent) {
-  let timeLeft = duration;
-  const countdownEl = modalContent.querySelector("#countdown");
-  const statusEl = modalContent.querySelector("#status");
-
-  const timer = setInterval(() => {
-    const m = Math.floor(timeLeft / 60);
-    const s = timeLeft % 60;
-    countdownEl.textContent = `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
-
-    if (timeLeft === 540) {
-      clearInterval(timer);
-      statusEl.textContent = "Payment confirmed!";
-      statusEl.classList.replace("text-yellow-400", "text-green-400");
-      setTimeout(() => window.location.href = "payment_success.html", 2000);
+    } catch (err) {
+      console.error("Fetch error:", err);
+      alert("Terjadi kesalahan saat memproses pembayaran.");
     }
-
-    if (timeLeft <= 0) {
-      clearInterval(timer);
-      statusEl.textContent = "Payment expired.";
-      statusEl.classList.replace("text-yellow-400", "text-red-400");
-    }
-
-    timeLeft--;
-  }, 1000);
-}
-
-// --- Jika cancel, ubah status order ---
-function clearPendingPayment() {
-  const order = JSON.parse(localStorage.getItem("bydOrder"));
-  if (order) {
-    order.status = "cancelled";
-    localStorage.setItem("bydOrder", JSON.stringify(order));
-  }
-}
+  });
+});
