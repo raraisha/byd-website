@@ -8,7 +8,6 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script type="module" src="supabase.js"></script>
-  <script type="module" src="supabase.js"></script>
   <style>
     body {
       font-family: 'Poppins', sans-serif;
@@ -58,10 +57,6 @@
       transform: translateY(-2px);
     }
 
-    .nav-glow {
-      box-shadow: 0 0 15px rgba(0,255,255,0.2);
-    }
-
     .back-btn {
       position: absolute;
       top: 20px;
@@ -91,6 +86,25 @@
       -webkit-box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0) inset !important;
       -webkit-text-fill-color: white !important;
       transition: background-color 5000s ease-in-out 0s;
+    }
+
+    .error-message {
+      color: #ff6b6b;
+      font-size: 14px;
+      margin-top: 4px;
+      display: none;
+    }
+
+    .error-message.show {
+      display: block;
+    }
+
+    .loading {
+      display: none;
+    }
+
+    .loading.show {
+      display: inline-block;
     }
   </style>
 </head>
@@ -129,12 +143,17 @@
       </div>
 
       <button type="submit"
-        class="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-semibold py-3 rounded-xl transition">
-        Login
+        class="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-semibold py-3 rounded-xl transition flex items-center justify-center gap-2">
+        <span class="loading show" id="spinner">
+          <i data-lucide="loader" class="w-4 h-4 animate-spin"></i>
+        </span>
+        <span id="btnText">Login</span>
       </button>
 
+      <div id="errorMsg" class="error-message"></div>
+
       <p class="text-center text-gray-400 text-sm mt-4">
-        Don’t have an account?
+        Don't have an account?
         <a href="register.html" class="text-cyan-400 hover:underline">Sign up</a>
       </p>
     </form>
@@ -179,59 +198,98 @@
     animateStars();
   </script>
 
-  <!-- Script Login -->
-<script type="module">
-import supabase from './supabase.js';
+  <!-- Script Login dengan Role Checking -->
+  <script type="module">
+    import supabase from './supabase.js';
 
-const form = document.getElementById("loginForm");
+    const form = document.getElementById("loginForm");
+    const errorMsg = document.getElementById("errorMsg");
+    const spinner = document.getElementById("spinner");
+    const btnText = document.getElementById("btnText");
 
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
+    function showError(message) {
+      errorMsg.textContent = message;
+      errorMsg.classList.add("show");
+    }
 
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value.trim();
+    function hideError() {
+      errorMsg.classList.remove("show");
+    }
 
-  try {
-    // 1️⃣ Login ke Supabase Auth
-    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-      email,
-      password
+    function setLoading(loading) {
+      spinner.classList.toggle("show", loading);
+      form.querySelector("button").disabled = loading;
+      btnText.textContent = loading ? "" : "Login";
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      hideError();
+      setLoading(true);
+
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      try {
+        // 1️⃣ Login ke Supabase Auth
+        const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+          email,
+          password
+        });
+
+        if (authError) {
+          showError("Login failed: " + authError.message);
+          setLoading(false);
+          return;
+        }
+
+        const user = authData.user;
+        if (!user) {
+          showError("User not found. Please try again.");
+          setLoading(false);
+          return;
+        }
+
+        // 2️⃣ Cek di tabel users (user biasa)
+        const { data: userProfile, error: userError } = await supabase
+          .from("users")
+          .select("*")
+          .eq("auth_id", user.id)
+          .single();
+
+        if (!userError && userProfile) {
+          // User ditemukan di tabel users
+          console.log("Login sebagai User:", userProfile);
+          window.location.href = "index.html";
+          return;
+        }
+
+        // 3️⃣ Cek di tabel admin (jika tidak ditemukan di users)
+        const { data: adminProfile, error: adminError } = await supabase
+          .from("admins")
+          .select("*")
+          .eq("auth_id", user.id)
+          .single();
+
+        if (!adminError && adminProfile) {
+          // Admin ditemukan di tabel admin
+          console.log("Login sebagai Admin:", adminProfile);
+          window.location.href = "dashboard_admin.html";
+          return;
+        }
+
+        // 4️⃣ Jika tidak ditemukan di kedua tabel
+        showError("Your account is not registered as user or admin.");
+        await supabase.auth.signOut();
+        setLoading(false);
+
+      } catch (err) {
+        console.error(err);
+        showError("An unexpected error occurred.");
+        setLoading(false);
+      }
     });
-
-    if (authError) {
-      alert("Gagal login: " + authError.message);
-      return;
-    }
-
-    const user = authData.user;
-    if (!user) {
-      alert("User tidak ditemukan. Coba lagi.");
-      return;
-    }
-
-    // 2️⃣ Ambil profil user dari tabel public.users
-    const { data: profile, error: profileError } = await supabase
-      .from("users")
-      .select("*")
-      .eq("auth_id", user.id)
-      .single();
-
-    if (profileError) {
-      console.error(profileError);
-      alert("Gagal mengambil data profil.");
-      return;
-    }
-
-    alert("Login berhasil!");
-    window.location.href = "index.html";
-
-  } catch (err) {
-    console.error(err);
-    alert("Terjadi kesalahan tak terduga.");
-  }
-});
-</script>
-
+  </script>
 
 </body>
 </html>
