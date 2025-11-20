@@ -2,35 +2,30 @@ import supabase from "../supabase.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
 
-  // --- 1. CEK LOGIN ---
+  // SESSION USER
   const { data: { session } } = await supabase.auth.getSession();
   if (!session || !session.user) {
-    alert("Anda harus login dahulu.");
-    window.location.href = "login.html";
-    return;
+    alert("Anda harus login terlebih dahulu.");
+    return (window.location.href = "login.html");
   }
   const user = session.user;
 
-  // --- 2. AMBIL DATA MOBIL ---
+  // AMBIL DATA MOBIL
   const car = JSON.parse(localStorage.getItem("selectedCar"));
   if (!car) {
-    alert("Tidak ada mobil yang dipilih.");
-    window.location.href = "models.html";
-    return;
+    alert("Tidak ada mobil dipilih.");
+    return (window.location.href = "models.html");
   }
 
-  // Update UI ringkasan mobil
-  document.querySelector(".innovation-card img").src = car.gambar;
+  // Tampilkan ringkasan mobil
   document.querySelector("#order-name").textContent = car.nama_produk;
   document.querySelector("#order-color").textContent = car.warna;
   document.querySelector("#order-type").textContent = car.varian;
   document.querySelector("#order-price").textContent =
     `Rp ${parseFloat(car.harga).toLocaleString("id-ID")}`;
-
   window.price = Number(car.harga);
 
-
-  // --- 3. AMBIL PROFIL USER ---
+  // PROFILE USER
   const { data: profile } = await supabase
     .from("users")
     .select("*")
@@ -42,46 +37,40 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("phone").value = profile?.no_telp || "";
   document.getElementById("address").value = profile?.address || "";
 
+  // MAP
+  const map = L.map("map").setView([-6.2, 106.81], 12);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
 
-  // --- 4. MAP (LEAFLET) ---
-  const map = L.map("map").setView([-6.2, 106.816], 12);
+  let marker = L.marker([-6.2, 106.81]).addTo(map);
 
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    maxZoom: 19,
-    attribution: "&copy; OpenStreetMap"
-  }).addTo(map);
-
-  let marker = L.marker([-6.2, 106.816]).addTo(map);
-
-  map.on("click", (e) => {
+  map.on("click", e => {
     marker.setLatLng(e.latlng);
     document.getElementById("latitude").value = e.latlng.lat;
     document.getElementById("longitude").value = e.latlng.lng;
   });
 
-
-  // --- 5. AUTOCOMPLETE ADDRESS ---
+  // AUTOCOMPLETE ALAMAT
   const addressInput = document.getElementById("address");
   const suggestionBox = document.getElementById("suggestions");
-  let debounce;
+  let debounceTimer;
 
   addressInput.addEventListener("input", () => {
-    clearTimeout(debounce);
+    clearTimeout(debounceTimer);
+    const query = addressInput.value.trim();
+    if (query.length < 3) return suggestionBox.classList.add("hidden");
 
-    const q = addressInput.value.trim();
-    if (q.length < 3) return suggestionBox.classList.add("hidden");
-
-    debounce = setTimeout(() => {
-      fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${q}&limit=5`)
+    debounceTimer = setTimeout(() => {
+      fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=5`)
         .then(res => res.json())
         .then(data => {
+
           suggestionBox.innerHTML = "";
           if (data.length === 0) return suggestionBox.classList.add("hidden");
 
           data.forEach(place => {
             const li = document.createElement("li");
             li.textContent = place.display_name;
-            li.className = "px-4 py-2 hover:bg-gray-800 cursor-pointer text-gray-300";
+            li.className = "px-4 py-2 hover:bg-gray-800 cursor-pointer";
 
             li.onclick = () => {
               addressInput.value = place.display_name;
@@ -90,7 +79,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
               map.setView([place.lat, place.lon], 15);
               marker.setLatLng([place.lat, place.lon]);
-
               suggestionBox.classList.add("hidden");
             };
 
@@ -99,98 +87,91 @@ document.addEventListener("DOMContentLoaded", async () => {
 
           suggestionBox.classList.remove("hidden");
         });
-    }, 400);
+    }, 300);
   });
 
+  document.addEventListener("click", e => {
+    if (!e.target.closest("#address")) suggestionBox.classList.add("hidden");
+  });
 
-  // --- 6. FULL / DP ---
+  // PAYMENT OPTION
   const dpRate = 0.05;
-  const radios = document.querySelectorAll('input[name="payment-option"]');
-  const amountLabel = document.getElementById("payment-amount");
+  const paymentRadios = document.querySelectorAll('input[name="payment-option"]');
+  const paymentAmount = document.getElementById("payment-amount");
 
-  const updateAmount = (val) => {
-    amountLabel.textContent =
-      val === "full" ?
-        `Rp ${window.price.toLocaleString("id-ID")}` :
-        `Rp ${(window.price * dpRate).toLocaleString("id-ID")}`;
-  };
+  function updatePayment(type) {
+    paymentAmount.textContent =
+      type === "full"
+        ? `Rp ${window.price.toLocaleString("id-ID")}`
+        : `Rp ${(window.price * dpRate).toLocaleString("id-ID")}`;
+  }
 
-  updateAmount("full");
-  radios.forEach(r => r.addEventListener("change", () => updateAmount(r.value)));
+  updatePayment("full");
 
+  paymentRadios.forEach(r => r.addEventListener("change", e => updatePayment(e.target.value)));
 
-  // --- 7. SUBMIT & MIDTRANS ---
+  // SUBMIT ORDER
   document.getElementById("order-form").addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    // Order data
     const orderData = {
       user_id: user.id,
-      name: document.getElementById("fullName").value,
-      email: document.getElementById("email").value,
-      phone: document.getElementById("phone").value,
-      address: document.getElementById("address").value,
-      car_name: car.nama_produk,
-      car_price: Number(car.harga),
+      name: fullName.value,
+      email: email.value,
+      phone: phone.value,
+      address: address.value,
       status: "pending",
       created_at: new Date().toISOString(),
+      car_name: car.nama_produk,
+      car_price: Number(car.harga),
     };
 
     localStorage.setItem("bydOrder", JSON.stringify(orderData));
 
-    const generateOrderId = () =>
-      `ORDER-${Date.now()}-${Math.floor(Math.random() * 9000 + 1000)}`;
+    const orderId = `ORDER-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
 
     try {
-      const response = await fetch("https://byd-website.vercel.app/api/createTransaction", {
+      const res = await fetch("https://byd-website.vercel.app/api/createTransaction", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          order_id: generateOrderId(),
-          gross_amount: Number(orderData.car_price),
-          enabled_payments: ["bca_va"],   // ✨ FIX – INI YANG BUAT VA MUNCUL
+          order_id: orderId,
+          gross_amount: Number(car.harga),
+          payment_type: "bank_transfer",
+          enabled_payments: ["bank_transfer"],
           customer: {
             first_name: orderData.name,
             email: orderData.email,
             phone: orderData.phone,
             address: orderData.address,
-            id_user: profile.id_user,
+            id_user: profile?.id_user ?? profile?.id ?? user.id,
             id_produk: car.id_mobil
           }
         })
       });
 
-      const text = await response.text();
-      console.log("Midtrans return:", text);
-
+      const text = await res.text();
       const data = JSON.parse(text);
 
       if (!data.token) {
-        alert("Gagal membuat transaksi.");
+        alert("Gagal membuat transaksi Midtrans.");
         return;
       }
 
-      // Snap Popup
       window.snap.pay(data.token, {
-        onSuccess: function(res) {
+        onSuccess: () => {
           orderData.status = "success";
           localStorage.setItem("bydOrder", JSON.stringify(orderData));
           window.location.href = "payment_success.html";
         },
-        onPending: function(res) {
-          orderData.status = "pending";
-          localStorage.setItem("bydOrder", JSON.stringify(orderData));
-          alert("VA berhasil dibuat. Silakan selesaikan pembayaran.");
-        },
-        onError: function() {
-          orderData.status = "failed";
-          alert("Pembayaran gagal.");
-        }
+        onPending: () => alert("Pembayaran pending."),
+        onError: () => alert("Pembayaran gagal."),
+        onClose: () => alert("Popup pembayaran ditutup."),
       });
 
     } catch (err) {
-      console.error("ERROR:", err);
-      alert("Terjadi kesalahan server.");
+      console.error(err);
+      alert("Terjadi kesalahan saat memproses pembayaran.");
     }
   });
 
