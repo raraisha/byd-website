@@ -7,135 +7,107 @@
   <link rel="stylesheet" href="assets/style.css" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <script type="text/javascript"
-        src="https://app.sandbox.midtrans.com/snap/snap.js"
-        data-client-key="Mid-client-ZVMczIC9WB39rJq9"></script>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"> </script>
+
+  <!-- MIDTRANS SNAP -->
+  <script 
+    type="text/javascript"
+    src="https://app.sandbox.midtrans.com/snap/snap.js"
+    data-client-key="Mid-client-ZVMczIC9WB39rJq9">
+  </script>
+
+  <!-- LEAFLET MAP -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
+
 <body class="text-white relative">
 
   <div id="navbar"></div>
   <script type="module" src="scripts/loadNavbar.js"></script>
 
-
-<!-- ORDER NOW SECTION -->
 <section class="pt-40 pb-20 px-10 bg-gradient-to-b from-[#000108] to-[#152E4D] min-h-screen">
   <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-start">
 
     <!-- Ringkasan Mobil -->
     <div class="innovation-card show p-8">
       <h2 class="text-3xl font-bold text-cyan-400 mb-6 glaze-text">Order Summary</h2>
-      <img src="image/byd-atto3.png" alt="BYD Atto 3" class="w-full rounded-xl mb-6 shadow-lg" />
+      <img src="image/byd-atto3.png" class="w-full rounded-xl mb-6" />
+
       <div class="space-y-2">
-        <p><span class="text-gray-400">Model:</span> <span id="order-name" class="text-cyan-400 font-semibold">BYD Atto 3</span></p>
-        <p><span class="text-gray-400">Color:</span> <span id="order-color" class="text-cyan-400 font-semibold">Sky White</span></p>
-        <p><span class="text-gray-400">Type:</span> <span id="order-type" class="text-cyan-400 font-semibold">Advanced</span></p>
-        <p><span class="text-gray-400">Price:</span> <span id="order-price" class="text-cyan-400 font-semibold">$33,000</span></p>
+        <p><span class="text-gray-400">Model:</span> <span id="order-name" class="text-cyan-400 font-semibold"></span></p>
+        <p><span class="text-gray-400">Color:</span> <span id="order-color" class="text-cyan-400 font-semibold"></span></p>
+        <p><span class="text-gray-400">Type:</span> <span id="order-type" class="text-cyan-400 font-semibold"></span></p>
+        <p><span class="text-gray-400">Price:</span> <span id="order-price" class="text-cyan-400 font-semibold"></span></p>
       </div>
-      <!-- Divider -->
-        <div class="my-6 border-t border-gray-700"></div>
 
-        <!-- Payment Options -->
-        <div class="space-y-3">
-            <h3 class="text-xl font-semibold text-cyan-400 mb-2">Payment Option</h3>
+      <div class="my-6 border-t border-gray-700"></div>
 
-            <div class="flex items-center gap-4">
-            <label class="flex items-center gap-2 cursor-pointer">
-                <input type="radio" name="payment-option" value="full" class="text-cyan-400 focus:ring-cyan-500" checked />
-                <span>Pay in Full</span>
-            </label>
+      <!-- Payment Options -->
+      <div class="space-y-3">
+        <h3 class="text-xl font-semibold text-cyan-400 mb-2">Payment Option</h3>
 
-            <label class="flex items-center gap-2 cursor-pointer">
-                <input type="radio" name="payment-option" value="dp" class="text-cyan-400 focus:ring-cyan-500" />
-                <span>Down Payment (5%)</span>
-            </label>
-            </div>
+        <div class="flex items-center gap-4">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="radio" name="payment-option" value="full" checked />
+            <span>Pay in Full</span>
+          </label>
 
-            <!-- Dynamic Payment Amount -->
-            <div class="mt-3 p-4 bg-gray-800/60 border border-gray-700 rounded-xl">
-            <p class="text-gray-400 text-sm">Amount to Pay:</p>
-            <p id="payment-amount" class="text-2xl font-bold text-cyan-300 mt-1">$33,000</p>
-            </div>
-        </div>  
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="radio" name="payment-option" value="dp" />
+            <span>Down Payment (5%)</span>
+          </label>
+        </div>
+
+        <div class="mt-3 p-4 bg-gray-800/60 border border-gray-700 rounded-xl">
+          <p class="text-gray-400 text-sm">Amount to Pay:</p>
+          <p id="payment-amount" class="text-2xl font-bold text-cyan-300 mt-1"></p>
+        </div>
+      </div>
     </div>
 
-<!-- Formulir Pemesanan -->
-<div class="innovation-card show p-8">
-  <h2 class="text-3xl font-bold text-cyan-400 mb-3 glaze-text">Your Information</h2>
-  <p class="text-gray-400 text-sm mb-6">
-    Fields marked with * are editable. Changing email, phone, or address will also update your account information.
-  </p>
-  <form id="order-form" class="space-y-5">
+    <!-- Form Pemesanan -->
+    <div class="innovation-card show p-8">
+      <h2 class="text-3xl font-bold text-cyan-400 mb-3">Your Information</h2>
 
-    <!-- Nama (tidak bisa diubah) -->
-    <div>
-      <label class="block text-gray-400 mb-1" for="fullName">Full Name</label>
-      <input type="text" id="fullName" class="w-full px-4 py-2 rounded-lg bg-gray-800 border border-gray-700 text-white" readonly />
+      <form id="order-form" class="space-y-5">
+
+        <div>
+          <label class="text-gray-400 mb-1 block">Full Name</label>
+          <input id="fullName" type="text" class="w-full px-4 py-2 rounded-lg bg-gray-800 border border-gray-700" readonly />
+        </div>
+
+        <div>
+          <label class="text-gray-400 mb-1 block">Email *</label>
+          <input id="email" type="email" required class="w-full px-4 py-2 rounded-lg bg-gray-800 border border-gray-700" />
+        </div>
+
+        <div>
+          <label class="text-gray-400 mb-1 block">Phone Number *</label>
+          <input id="phone" type="text" required class="w-full px-4 py-2 rounded-lg bg-gray-800 border border-gray-700" />
+        </div>
+
+        <!-- Address -->
+        <div class="relative">
+          <label class="text-gray-400 mb-1 block">Delivery Address *</label>
+          <input id="address" type="text" required class="w-full px-4 py-2 rounded-lg bg-gray-800 border border-gray-700" />
+          <ul id="suggestions" class="absolute w-full bg-gray-900 border border-gray-700 rounded-lg mt-1 hidden max-h-60 overflow-y-auto"></ul>
+        </div>
+
+        <!-- Map -->
+        <div id="map" class="w-full h-72 rounded-xl border border-gray-700 mt-4"></div>
+
+        <input type="hidden" id="latitude">
+        <input type="hidden" id="longitude">
+
+        <button id="submit-order" type="submit" class="btn-gradient w-full py-3 rounded-lg font-semibold mt-4">
+          Place Order
+        </button>
+      </form>
     </div>
-
-    <!-- Email -->
-    <div>
-      <label class="block text-gray-400 mb-1" for="email">Email *</label>
-      <input type="email" id="email" class="w-full px-4 py-2 rounded-lg bg-gray-800 border border-gray-700 text-white" required />
-    </div>
-
-    <!-- Nomor Telepon -->
-    <div>
-      <label class="block text-gray-400 mb-1" for="phone">Phone Number *</label>
-      <input type="text" id="phone" class="w-full px-4 py-2 rounded-lg bg-gray-800 border border-gray-700 text-white" required />
-    </div>
-
-<!-- Address Input -->
-<div class="relative z[1000]">
-  <label class="block text-gray-400 mb-1" for="address">Delivery Address *</label>
-  <input 
-    type="text" 
-    id="address" 
-    placeholder="Start typing your address..." 
-    class="w-full px-4 py-2 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500" 
-    required
-  />
-  <ul 
-    id="suggestions" 
-    class="absolute z-[2000] w-full bg-gray-900 border border-gray-700 rounded-lg mt-1 hidden max-h-60 overflow-y-auto"
-  ></ul>
-  <p id="address-note" class="text-gray-500 text-sm mt-1">
-    Pin your exact address below to confirm delivery location.
-  </p>
-</div>
-
-<!-- Map Container -->
-<div id="map" class="w-full h-72 rounded-2xl mt-5 border border-gray-700"></div>
-
-<!-- Hidden Inputs -->
-<input type="hidden" id="latitude" name="latitude">
-<input type="hidden" id="longitude" name="longitude">
-
-   
-    <!-- Catatan Tambahan -->
-    <div>
-      <label class="block text-gray-400 mb-1" for="note">Additional Notes (Optional)</label>
-      <textarea id="note" rows="2" class="w-full px-4 py-2 rounded-lg bg-gray-800 border border-gray-700 text-white"></textarea>
-    </div>
-
-    <button id="order-form" type="submit" class="btn-gradient w-full py-3 rounded-lg font-semibold mt-4">Place Order</button>
-  </form>
-</div>
   </div>
 </section>
-<div id="payment-modal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-[3000]">
-  <div class="innovation-card show p-8 w-full max-w-md relative">
-    <button id="close-modal" class="absolute top-4 right-4 text-gray-400 hover:text-white">
-      <i data-lucide="x" class="w-6 h-6"></i>
-    </button>
-    <div id="modal-content" class="text-center space-y-6">
-      <!-- Konten dinamis akan dimasukkan oleh JS -->
-    </div>
-  </div>
-</div>
 
-    <script type="module" src="assets/orderDetail.js"></script>
+<script type="module" src="assets/orderDetail.js"></script>
 
 </body>
 </html>
