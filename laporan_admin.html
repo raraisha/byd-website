@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Laporan Penjualan - BYD</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body{
+      font-family:'Poppins',sans-serif;
+      background:linear-gradient(to bottom,#000108,#0a1625,#112b45);
+      color:#fff;
+      display:flex;
+      min-height:100vh;
+    }
+    main{ margin-left:250px;padding:50px;width:100%; }
+    .glow{ text-shadow:0 0 6px #00ffff,0 0 12px #009dff; }
+    @keyframes fade-in{ from{opacity:0;transform:translateY(-10px);} to{opacity:1;transform:translateY(0);} }
+    .animate-fade-in{ animation:fade-in .6s ease-out; }
+    .card{ background:#0E1A2Baa; border:1px solid rgba(0,255,255,.15); }
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <div id="sidebar-container"></div>
+
+  <main>
+    <div class="absolute right-10 top-8 flex items-center gap-3">
+      <span class="text-sm text-gray-300">Admin BYD</span>
+      <img src="image/admin.png" class="w-10 h-10 rounded-full border-2 border-cyan-400/40">
+    </div>
+
+    <h1 class="text-3xl font-semibold glow mb-10 mt-16">Laporan Penjualan Mobil</h1>
+
+    <!-- CARD KOTAK LAPORAN -->
+    <div class="grid md:grid-cols-2 gap-6">
+
+      <!-- Grafik Penjualan -->
+      <div class="card p-6 rounded-2xl shadow-xl">
+        <h2 class="text-xl text-cyan-300 font-semibold mb-3">Grafik Penjualan Berdasarkan Tanggal</h2>
+        <canvas id="chartPenjualan" height="120"></canvas>
+      </div>
+
+      <!-- Total Terjual -->
+      <div class="card p-6 rounded-2xl shadow-xl flex flex-col justify-center text-center">
+        <h2 class="text-xl text-cyan-300 font-semibold mb-3">Total Mobil Terjual</h2>
+        <h1 id="totalPenjualan" class="text-5xl font-bold text-cyan-400 drop-shadow-lg">0</h1>
+        <p class="mt-2 text-gray-300 text-sm">Data diambil real-time dari tabel transaksi</p>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    fetch("sidebar.html")
+      .then(res => res.text())
+      .then(html => document.getElementById("sidebar-container").innerHTML = html)
+      .catch(err => console.error("Sidebar gagal dimuat:", err));
+  </script>
+
+  <!-- === Supabase Logic === -->
+  <script type="module">
+    import supabase from "./supabase.js"
+
+    const ctx = document.getElementById('chartPenjualan').getContext('2d')
+    const totalEl = document.getElementById('totalPenjualan')
+
+    async function loadData(){
+      // Ambil transaksi yang statusnya selesai / sukses
+      const { data, error } = await supabase
+        .from('transaksi')
+        .select('id_transaksi, tanggal, id_produk')
+
+      if(error) return console.error("Gagal mengambil transaksi:",error)
+
+      // Format ke grafik harian
+      const countByDate = {}
+      data.forEach(t=>{
+        const tgl = new Date(t.tanggal).toLocaleDateString("id-ID",{day:"2-digit",month:"short"})
+        countByDate[tgl] = (countByDate[tgl]||0) + 1
+      })
+
+      const labels = Object.keys(countByDate)
+      const values = Object.values(countByDate)
+
+      totalEl.textContent = values.reduce((a,b)=>a+b,0)
+
+      // Render chart
+      new Chart(ctx,{
+        type:"line",
+        data:{
+          labels:labels,
+          datasets:[{
+            label:"Jumlah Penjualan",
+            data:values,
+            borderWidth:3,
+            pointRadius:4,
+            pointHoverRadius:6
+          }]
+        },
+        options:{
+          plugins:{ legend:{ labels:{ color:"#fff" }}},
+          scales:{
+            y:{ ticks:{ color:"#fff"}, grid:{ color:"#ffffff20"} },
+            x:{ ticks:{ color:"#fff"}, grid:{ color:"#ffffff10"} }
+          }
+        }
+      })
+    }
+
+    loadData()
+  </script>
+
+</body>
+</html>
