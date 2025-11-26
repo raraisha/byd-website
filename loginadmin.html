@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login | BYD Motors</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script type="module" src="supabase.js"></script>
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      overflow: hidden;
+      background: radial-gradient(circle at top, #0a0a0a, #000);
+      color: white;
+    }
+
+    canvas#stars {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+
+    .input-field {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: 0.3s;
+    }
+
+    .input-field:focus {
+      border-color: rgba(0, 255, 255, 0.7);
+      box-shadow: 0 0 8px rgba(0, 255, 255, 0.3);
+    }
+
+    .login-card {
+      position: relative;
+      z-index: 1;
+      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(0,255,255,0.2);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 25px rgba(0,255,255,0.15);
+      transition: 0.3s;
+    }
+
+    .login-card:hover {
+      box-shadow: 0 0 35px rgba(0,255,255,0.3);
+    }
+
+    .error-message {
+      color: #ff6b6b;
+      font-size: 14px;
+      margin-top: 4px;
+      display: none;
+    }
+
+    .error-message.show {
+      display: block;
+    }
+
+    .loading { display: none; }
+    .loading.show { display: inline-block; }
+  </style>
+
+</head>
+<body class="min-h-screen flex items-center justify-center relative">
+
+  <canvas id="stars"></canvas>
+
+  <div class="login-card rounded-2xl p-10 w-[400px]">
+    <div class="flex flex-col items-center mb-8">
+      <img src="image/logo.png" class="h-14 mb-4">
+      <h1 class="text-2xl font-semibold text-cyan-400">Admin Login</h1>
+      <p class="text-gray-400 text-sm mt-1">Access restricted to administrators only</p>
+    </div>
+
+    <form id="adminLoginForm" class="space-y-5">
+      <div>
+        <label class="block text-sm mb-2 text-gray-300">Email</label>
+        <input type="email" id="adminEmail" required
+          class="w-full input-field px-4 py-3 rounded-xl text-sm text-white"
+          placeholder="Admin email">
+      </div>
+
+      <div>
+        <label class="block text-sm mb-2 text-gray-300">Password</label>
+        <input type="password" id="adminPassword" required
+          class="w-full input-field px-4 py-3 rounded-xl text-sm text-white"
+          placeholder="Admin password">
+      </div>
+
+      <button type="submit"
+        class="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-semibold py-3 rounded-xl transition flex items-center justify-center gap-2">
+        <span class="loading" id="spinner"><i data-lucide="loader" class="w-4 h-4 animate-spin"></i></span>
+        <span id="btnText">Login</span>
+      </button>
+
+      <div id="errorMsg" class="error-message"></div>
+    </form>
+  </div>
+
+  <script>
+    // ⭐ Background Stars
+    const canvas = document.getElementById('stars');
+    const ctx = canvas.getContext('2d');
+    let stars = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      stars = [];
+      for (let i = 0; i < 120; i++) {
+        stars.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          radius: Math.random() * 1.5,
+          speed: Math.random() * 0.5 + 0.2
+        });
+      }
+    }
+
+    function animateStars() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = 'rgba(0, 255, 255, 0.8)';
+      stars.forEach(star => {
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+        ctx.fill();
+        star.y += star.speed;
+        if (star.y > canvas.height) star.y = 0;
+      });
+      requestAnimationFrame(animateStars);
+    }
+
+    resizeCanvas();
+    animateStars();
+    window.addEventListener('resize', resizeCanvas);
+  </script>
+
+  <!-- LOGIN ADMIN -->
+  <script type="module">
+    import supabase from './supabase.js';
+
+    const form = document.getElementById("adminLoginForm");
+    const errorMsg = document.getElementById("errorMsg");
+    const spinner = document.getElementById("spinner");
+    const btnText = document.getElementById("btnText");
+
+    function showError(msg) {
+      errorMsg.textContent = msg;
+      errorMsg.classList.add("show");
+    }
+
+    function hideError() {
+      errorMsg.classList.remove("show");
+    }
+
+    function setLoading(load) {
+      spinner.classList.toggle("show", load);
+      btnText.textContent = load ? "" : "Login";
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      hideError();
+      setLoading(true);
+
+      const email = document.getElementById("adminEmail").value.trim();
+      const password = document.getElementById("adminPassword").value.trim();
+
+      // Check table admins
+      const { data: admin, error } = await supabase
+        .from("admins")
+        .select("*")
+        .eq("email", email)
+        .single();
+
+      if (error || !admin) {
+        showError("Admin not found!");
+        setLoading(false);
+        return;
+      }
+
+      if (password !== admin.password) {
+        showError("Incorrect password!");
+        setLoading(false);
+        return;
+      }
+
+      // Login success → redirect
+      window.location.href = "dashboard_admin.html";
+    });
+  </script>
+
+</body>
+</html>
