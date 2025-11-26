@@ -129,16 +129,19 @@ document.addEventListener("DOMContentLoaded", async () => {
     // =============================
     // 📦 DATA TRANSAKSI UNTUK SUPABASE
     // =============================
-    const transaksiData = {
-      id_user: profile?.id_user ?? profile?.id,
-      id_produk: car.id_mobil,
-      jumlah_dp: paymentType === "dp" ? amountToPay : null,
-      metode_pembayaran: paymentType,
-      sisa_pembayaran: paymentType === "full" ? 0 : window.price - amountToPay,
-      kode_pembayaran: orderId,
-      catatan: "",
-      status: "pending",
-    };
+const transaksiData = {
+  id_user: profile?.id_user ?? profile?.id,   // sesuai kolom
+  id_produk: car.id_mobil,                    // sesuai kolom
+  jumlah_dp: paymentType === "dp" ? amountToPay : null,
+  metode_pembayaran: paymentType,             // "full" atau "dp"
+  kode_pembayaran: orderId,                   // wajib
+  bukti_pembayaran: null,                     // default NULL
+  sisa_pembayaran: paymentType === "full" ? 0 : window.price - amountToPay,
+  catatan: "",                                // opsional
+  status: "pending",                          // pending / success / failed
+  // tanggal, created_at, updated_at --> dibuat otomatis oleh database
+};
+
 
     // =============================
     // 💾 SIMPAN KE SUPABASE
