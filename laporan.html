@@ -4,164 +4,154 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Laporan Penjualan - BYD</title>
+
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+  <!-- jsPDF + AutoTable -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 
   <style>
-    body{ font-family:'Poppins',sans-serif;background:linear-gradient(to bottom,#000108,#0a1625,#112b45);color:#fff;display:flex;min-height:100vh; }
-    main{ margin-left:250px;padding:50px;width:100%; }
-    .glow{ text-shadow:0 0 6px #00ffff,0 0 12px #009dff; }
-    .card{ background:#0E1A2Baa;border:1px solid rgba(0,255,255,.15); }
+    body{font-family:'Poppins',sans-serif;background:linear-gradient(to bottom,#000108,#0a1625,#112b45);color:#fff;display:flex;}
+    main{margin-left:250px;padding:50px;width:100%;}
+    .glow{text-shadow:0 0 6px #00ffff,0 0 12px #009dff;}
+    .card{background:#0E1A2Baa;border:1px solid rgba(0,255,255,.15);}
   </style>
 </head>
 <body>
 
-  <!-- Sidebar Sama Persis Seperti Kelola Admin -->
-  <div id="sidebar-container"></div>
+<!-- SIDEBAR -->
+<div id="sidebar-container" style="width:250px;position:fixed;left:0;top:0;height:100vh;"></div>
 
-  <!-- Main Content -->
-  <main>
-    <div class="absolute right-10 top-8 flex items-center gap-3">
-      <span class="text-sm text-gray-300">Admin BYD</span>
-      <img src="image/admin.png" class="w-10 h-10 rounded-full border-2 border-cyan-400/40">
+<main>
+  <div class="absolute right-10 top-8 flex items-center gap-3">
+    <span class="text-sm text-gray-300">Admin BYD</span>
+    <img src="image/admin.png" class="w-10 h-10 rounded-full border-2 border-cyan-400/40">
+  </div>
+
+  <h1 class="text-3xl glow font-semibold mb-10 mt-16">Laporan Penjualan Mobil</h1>
+
+  <div class="grid md:grid-cols-2 gap-6">
+    <div class="card p-6 rounded-xl">
+      <h2 class="text-lg text-cyan-300 font-semibold mb-3">📈 Grafik Penjualan</h2>
+      <canvas id="chartPenjualan" height="150"></canvas>
     </div>
 
-    <h1 class="text-3xl glow font-semibold mb-10 mt-16">Laporan Penjualan Mobil</h1>
-
-    <div class="grid md:grid-cols-2 gap-6">
-      <div class="card p-6 rounded-xl">
-        <h2 class="text-lg text-cyan-300 font-semibold mb-3">Grafik Penjualan</h2>
-        <canvas id="chartPenjualan" height="130"></canvas>
-      </div>
-
-      <div class="card p-6 rounded-xl flex flex-col justify-center items-center">
-        <h2 class="text-lg text-cyan-300 font-semibold">Total Mobil Terjual</h2>
-        <h1 id="totalPenjualan" class="text-6xl font-bold text-cyan-400 drop-shadow-lg">0</h1>
-        <p class="mt-2 text-gray-300 text-sm">Data realtime dari Supabase</p>
-      </div>
+    <div class="card p-6 rounded-xl flex flex-col justify-center items-center">
+      <h2 class="text-lg text-cyan-300 font-semibold">🚗 Total Mobil Terjual</h2>
+      <h1 id="totalPenjualan" class="text-6xl font-bold text-cyan-400 drop-shadow-lg">0</h1>
+      <p class="mt-2 text-gray-300 text-sm">Data real-time dari Supabase</p>
     </div>
+  </div>
 
-    <!-- Filter, Button Export, dan Tabel -->
-    <div class="card p-6 rounded-xl mt-10 border border-cyan-400/20">
-      <div class="flex justify-between mb-4">
-        <input id="filterInput" placeholder="Cari nama... (A–Z)" 
-               class="px-4 py-2 rounded-lg bg-[#0b1728] border border-cyan-400/20 text-white w-60"
-               onkeyup="filterTable()">
+  <!-- TABLE SECTION -->
+  <div class="card p-6 rounded-xl mt-10 border border-cyan-400/30">
+    
+    <div class="flex justify-between mb-4">
+      <input id="filterInput" placeholder="Cari nama / filter A-Z..."
+             class="px-4 py-2 rounded-lg bg-[#0b1728] border border-cyan-400/20 text-white w-64"
+             onkeyup="filterTable()">
 
-        <div>
-          <button onclick="exportExcel()" class="bg-green-600 px-4 py-2 rounded-lg mx-1 hover:bg-green-700">Excel</button>
-          <button onclick="exportPDF()" class="bg-red-600 px-4 py-2 rounded-lg mx-1 hover:bg-red-700">PDF</button>
-        </div>
-      </div>
-
-      <div class="overflow-x-auto">
-        <table class="min-w-full text-sm" id="tabelTransaksi">
-          <thead class="text-cyan-300 border-b border-cyan-400/30">
-            <tr>
-              <th class="p-3 text-left">ID User</th>
-              <th class="p-3 text-left">ID Produk</th>
-              <th class="p-3 text-left">Jumlah DP</th>
-              <th class="p-3 text-left">Metode Bayar</th>
-              <th class="p-3 text-left">Tanggal</th>
-              <th class="p-3 text-left">Kode Pembayaran</th>
-              <th class="p-3 text-left">Sisa Bayar</th>
-              <th class="p-3 text-left">Catatan</th>
-              <th class="p-3 text-left">Status</th>
-            </tr>
-          </thead>
-          <tbody id="transaksiBody" class="text-gray-300"></tbody>
-        </table>
+      <div>
+        <button onclick="exportExcel()" class="bg-green-600 px-4 py-2 rounded-lg mx-1 hover:bg-green-700">Excel</button>
+        <button onclick="exportPDF()" class="bg-red-600 px-4 py-2 rounded-lg mx-1 hover:bg-red-700">PDF</button>
       </div>
     </div>
 
-  </main>
+    <div class="overflow-x-auto">
+      <table id="tabelTransaksi" class="min-w-full text-sm">
+        <thead class="text-cyan-300 border-b border-cyan-400/40">
+          <tr>
+            <th class="p-3">ID User</th>
+            <th class="p-3">ID Produk</th>
+            <th class="p-3">Jumlah DP</th>
+            <th class="p-3">Metode Bayar</th>
+            <th class="p-3">Tanggal</th>
+            <th class="p-3">Kode Pembayaran</th>
+            <th class="p-3">Sisa Bayar</th>
+            <th class="p-3">Catatan</th>
+            <th class="p-3">Status</th>
+          </tr>
+        </thead>
+        <tbody id="transaksiBody" class="text-gray-200"></tbody>
+      </table>
+    </div>
+  </div>
+</main>
 
-  <!-- LOADER SIDEBAR -->
-  <script>
-    fetch("sidebar.html")
-      .then(res => res.text())
-      .then(html => document.getElementById("sidebar-container").innerHTML = html);
-  </script>
 
-  <!-- Supabase Logic -->
-  <script type="module">
-    import supabase from "./supabase.js"
+<script>
+  // Muat sidebar dahulu agar halaman utuh
+  fetch("sidebar.html")
+    .then(r=>r.text())
+    .then(html=>{document.getElementById("sidebar-container").innerHTML=html})
+    .then(()=> loadTransaksi()); // BARU LOAD DATA SETELAH SIDEBAR SIAP
+</script>
 
-    const ctx = document.getElementById('chartPenjualan').getContext('2d')
-    const totalEl = document.getElementById('totalPenjualan')
-    const tbody = document.getElementById('transaksiBody')
 
-    let transaksiData = []
+<!-- Supabase Data -->
+<script type="module">
+  import supabase from "./supabase.js"
 
-    async function loadTransaksi(){
-      const { data, error } = await supabase.from('transaksi').select('*')
+  const ctx = document.getElementById("chartPenjualan").getContext("2d");
+  const tbody = document.getElementById("transaksiBody");
+  const totalEl = document.getElementById("totalPenjualan");
 
-      if(error) return console.error(error)
+  window.loadTransaksi = async ()=>{
+    let {data,error}=await supabase.from("transaksi").select("*");
+    if(error) return console.error(error);
 
-      transaksiData = data
+    tbody.innerHTML = data.map(t=>`
+      <tr class="border-b border-cyan-400/10 hover:bg-[#0d1d30]">
+        <td class="p-3">${t.id_user}</td>
+        <td class="p-3">${t.id_produk}</td>
+        <td class="p-3">${t.jumlah_dp}</td>
+        <td class="p-3">${t.metode_pembayaran}</td>
+        <td class="p-3">${new Date(t.tanggal).toLocaleDateString('id-ID')}</td>
+        <td class="p-3">${t.kode_pembayaran||"-"}</td>
+        <td class="p-3">${t.sisa_pembayaran||"-"}</td>
+        <td class="p-3">${t.catatan||"-"}</td>
+        <td class="p-3">${t.status||"-"}</td>
+      </tr>`).join("");
 
-      // Tampilkan Tabel
-      tbody.innerHTML = data.map(t => `
-        <tr class='border-b border-cyan-400/10 hover:bg-[#0b1a28]'>
-          <td class="p-3">${t.id_user}</td>
-          <td class="p-3">${t.id_produk}</td>
-          <td class="p-3">${t.jumlah_dp}</td>
-          <td class="p-3">${t.metode_pembayaran}</td>
-          <td class="p-3">${new Date(t.tanggal).toLocaleDateString('id-ID')}</td>
-          <td class="p-3">${t.kode_pembayaran}</td>
-          <td class="p-3">${t.sisa_pembayaran}</td>
-          <td class="p-3">${t.catatan||'-'}</td>
-          <td class="p-3">${t.status||'-'}</td>
-        </tr>
-      `).join('')
+    totalEl.innerText = data.length;
 
-      // Grafik Proses
-      const countByDate={}
-      data.forEach(a=>{
-        const tgl=new Date(a.tanggal).toLocaleDateString("id-ID",{day:"2-digit",month:"short"})
-        countByDate[tgl]=(countByDate[tgl]||0)+1
-      })
+    let group={};
+    data.forEach(x=>{
+      let t=new Date(x.tanggal).toLocaleDateString("id-ID",{day:"2-digit",month:"short"});
+      group[t]=(group[t]||0)+1;
+    });
 
-      new Chart(ctx,{
-        type:"line",
-        data:{
-          labels:Object.keys(countByDate),
-          datasets:[{ label:"Penjualan", data:Object.values(countByDate), borderColor:"#00eaff", borderWidth:2 }]
-        }
-      })
+    new Chart(ctx,{
+      type:"line",
+      data:{labels:Object.keys(group),datasets:[{label:"Total Penjualan",data:Object.values(group),borderColor:"#00e5ff",borderWidth:3}]},
+      options:{plugins:{legend:{labels:{color:"#fff"}}},scales:{y:{ticks:{color:"#fff"}},x:{ticks:{color:"#fff"}}}}
+    })
+  }
+</script>
 
-      totalEl.innerText = data.length
-    }
+<script>
+  function filterTable(){
+    let input=document.getElementById("filterInput").value.toLowerCase();
+    document.querySelectorAll("#transaksiBody tr").forEach(r=>{
+      r.style.display=r.innerText.toLowerCase().includes(input)?"":"none";
+    });
+  }
 
-    loadTransaksi()
-  </script>
+  function exportExcel(){
+    let wb=XLSX.utils.table_to_book(document.getElementById("tabelTransaksi"));
+    XLSX.writeFile(wb,"laporan_penjualan.xlsx");
+  }
 
-  <!-- Filter + Export -->
-  <script>
-    function filterTable(){
-      const val = document.getElementById("filterInput").value.toLowerCase()
-      const rows = document.querySelectorAll("#transaksiBody tr")
-
-      rows.forEach(r=>{
-        r.style.display = r.innerText.toLowerCase().includes(val) ? "" : "none"
-      })
-    }
-
-    function exportExcel(){
-      let wb=XLSX.utils.table_to_book(document.getElementById("tabelTransaksi"))
-      XLSX.writeFile(wb,"laporan_penjualan.xlsx")
-    }
-
-    async function exportPDF(){
-      const { jsPDF } = window.jspdf
-      const doc = new jsPDF({orientation:'landscape'})
-      doc.text("LAPORAN PENJUALAN BYD",10,10)
-      doc.autoTable({html:"#tabelTransaksi",theme:"grid"})
-      doc.save("laporan_penjualan.pdf")
-    }
-  </script>
+  function exportPDF(){
+    const doc=new jspdf.jsPDF('landscape');
+    doc.text("Laporan Penjualan BYD",14,10);
+    doc.autoTable({html:"#tabelTransaksi",theme:"striped"});
+    doc.save("laporan_penjualan.pdf");
+  }
+</script>
 
 </body>
 </html>
