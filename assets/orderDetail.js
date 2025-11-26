@@ -2,30 +2,33 @@ import supabase from "../supabase.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
 
-  // SESSION USER
+  // =============================
+  // 🔐 SESSION USER
+  // =============================
   const { data: { session } } = await supabase.auth.getSession();
-  if (!session || !session.user) {
+  if (!session?.user) {
     alert("Anda harus login terlebih dahulu.");
-    return (window.location.href = "login.html");
+    return window.location.href = "login.html";
   }
   const user = session.user;
 
-  // AMBIL DATA MOBIL
+  // =============================
+  // 🚗 DATA MOBIL SELECTED
+  // =============================
   const car = JSON.parse(localStorage.getItem("selectedCar"));
-  if (!car) {
-    alert("Tidak ada mobil dipilih.");
-    return (window.location.href = "models.html");
-  }
+  if (!car) return (window.location.href = "models.html");
 
-  // Tampilkan ringkasan mobil
   document.querySelector("#order-name").textContent = car.nama_produk;
   document.querySelector("#order-color").textContent = car.warna;
   document.querySelector("#order-type").textContent = car.varian;
   document.querySelector("#order-price").textContent =
     `Rp ${parseFloat(car.harga).toLocaleString("id-ID")}`;
+
   window.price = Number(car.harga);
 
-  // PROFILE USER
+  // =============================
+  // 👤 USER PROFILE
+  // =============================
   const { data: profile } = await supabase
     .from("users")
     .select("*")
@@ -37,7 +40,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("phone").value = profile?.no_telp || "";
   document.getElementById("address").value = profile?.address || "";
 
-  // MAP
+  // =============================
+  // 🗺️ MAP
+  // =============================
   const map = L.map("map").setView([-6.2, 106.81], 12);
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
 
@@ -49,21 +54,22 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("longitude").value = e.latlng.lng;
   });
 
-  // AUTOCOMPLETE ALAMAT
+  // =============================
+  // 📌 AUTOCOMPLETE ADDRESS
+  // =============================
   const addressInput = document.getElementById("address");
   const suggestionBox = document.getElementById("suggestions");
   let debounceTimer;
 
   addressInput.addEventListener("input", () => {
     clearTimeout(debounceTimer);
-    const query = addressInput.value.trim();
-    if (query.length < 3) return suggestionBox.classList.add("hidden");
+    const q = addressInput.value.trim();
+    if (q.length < 3) return suggestionBox.classList.add("hidden");
 
     debounceTimer = setTimeout(() => {
-      fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=5`)
+      fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${q}&limit=5`)
         .then(res => res.json())
         .then(data => {
-
           suggestionBox.innerHTML = "";
           if (data.length === 0) return suggestionBox.classList.add("hidden");
 
@@ -90,61 +96,84 @@ document.addEventListener("DOMContentLoaded", async () => {
     }, 300);
   });
 
-  document.addEventListener("click", e => {
-    if (!e.target.closest("#address")) suggestionBox.classList.add("hidden");
-  });
-
-  // PAYMENT OPTION
+  // =============================
+  // 💰 PAYMENT OPTION
+  // =============================
   const dpRate = 0.05;
   const paymentRadios = document.querySelectorAll('input[name="payment-option"]');
   const paymentAmount = document.getElementById("payment-amount");
 
   function updatePayment(type) {
-    paymentAmount.textContent =
-      type === "full"
-        ? `Rp ${window.price.toLocaleString("id-ID")}`
-        : `Rp ${(window.price * dpRate).toLocaleString("id-ID")}`;
+    const amount = type === "full"
+      ? window.price
+      : Math.floor(window.price * dpRate);
+
+    paymentAmount.textContent = `Rp ${amount.toLocaleString("id-ID")}`;
+    paymentAmount.dataset.amount = amount;
   }
 
   updatePayment("full");
-
   paymentRadios.forEach(r => r.addEventListener("change", e => updatePayment(e.target.value)));
 
-  // SUBMIT ORDER
+  // =============================
+  // 📝 SUBMIT ORDER
+  // =============================
   document.getElementById("order-form").addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const orderData = {
-      user_id: user.id,
-      name: fullName.value,
-      email: email.value,
-      phone: phone.value,
-      address: address.value,
-      status: "pending",
-      created_at: new Date().toISOString(),
-      car_name: car.nama_produk,
-      car_price: Number(car.harga),
-    };
-
-    localStorage.setItem("bydOrder", JSON.stringify(orderData));
+    const paymentType = document.querySelector('input[name="payment-option"]:checked').value;
+    const amountToPay = Number(paymentAmount.dataset.amount);
 
     const orderId = `ORDER-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
 
+    // =============================
+    // 📦 DATA TRANSAKSI UNTUK SUPABASE
+    // =============================
+    const transaksiData = {
+      id_user: profile?.id_user ?? profile?.id,
+      id_produk: car.id_mobil,
+      jumlah_dp: paymentType === "dp" ? amountToPay : null,
+      metode_pembayaran: paymentType,
+      sisa_pembayaran: paymentType === "full" ? 0 : window.price - amountToPay,
+      kode_pembayaran: orderId,
+      catatan: "",
+      status: "pending",
+    };
+
+    // =============================
+    // 💾 SIMPAN KE SUPABASE
+    // =============================
+    const { data: saved, error } = await supabase
+      .from("transaksi")
+      .insert(transaksiData)
+      .select()
+      .single();
+
+    if (error) {
+      console.error(error);
+      return alert("Gagal menyimpan transaksi.");
+    }
+
+    console.log("Saved transaksi:", saved);
+
+    // =============================
+    // 🔗 MIDTRANS TOKEN REQUEST
+    // =============================
     try {
       const res = await fetch("https://byd-website.vercel.app/api/createTransaction", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           order_id: orderId,
-          gross_amount: Number(car.harga),
+          gross_amount: amountToPay,
           payment_type: "bank_transfer",
           enabled_payments: ["bank_transfer"],
           customer: {
-            first_name: orderData.name,
-            email: orderData.email,
-            phone: orderData.phone,
-            address: orderData.address,
-            id_user: profile?.id_user ?? profile?.id ?? user.id,
+            first_name: profile?.name,
+            email: profile?.email,
+            phone: profile?.no_telp,
+            address: profile?.address,
+            id_user: saved.id_user,
             id_produk: car.id_mobil
           }
         })
@@ -158,21 +187,41 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
       }
 
+      // =============================
+      // 💳 SNAP POPUP
+      // =============================
       window.snap.pay(data.token, {
-        onSuccess: () => {
-          orderData.status = "success";
-          localStorage.setItem("bydOrder", JSON.stringify(orderData));
+        onSuccess: async () => {
+          await supabase.from("transaksi")
+            .update({ status: "success" })
+            .eq("id_transaksi", saved.id_transaksi);
+
           window.location.href = "payment_success.html";
         },
-        onPending: () => alert("Pembayaran pending."),
-        onError: () => alert("Pembayaran gagal."),
-        onClose: () => alert("Popup pembayaran ditutup."),
+        onPending: async () => {
+          await supabase.from("transaksi")
+            .update({ status: "pending" })
+            .eq("id_transaksi", saved.id_transaksi);
+
+          alert("Pembayaran pending.");
+        },
+        onError: async () => {
+          await supabase.from("transaksi")
+            .update({ status: "failed" })
+            .eq("id_transaksi", saved.id_transaksi);
+
+          alert("Pembayaran gagal.");
+        },
+        onClose: () => {
+          alert("Popup pembayaran ditutup.");
+        }
       });
 
     } catch (err) {
       console.error(err);
       alert("Terjadi kesalahan saat memproses pembayaran.");
     }
+
   });
 
 });
