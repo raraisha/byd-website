@@ -5,11 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Laporan Penjualan - BYD</title>
 
+  <!-- Tailwind + ChartJS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Excel Export -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-  <!-- jsPDF + AutoTable -->
+  <!-- PDF Export -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 
@@ -26,6 +29,7 @@
 <div id="sidebar-container" style="width:250px;position:fixed;left:0;top:0;height:100vh;"></div>
 
 <main>
+
   <div class="absolute right-10 top-8 flex items-center gap-3">
     <span class="text-sm text-gray-300">Admin BYD</span>
     <img src="image/admin.png" class="w-10 h-10 rounded-full border-2 border-cyan-400/40">
@@ -33,6 +37,7 @@
 
   <h1 class="text-3xl glow font-semibold mb-10 mt-16">Laporan Penjualan Mobil</h1>
 
+  <!-- GRAFIK -->
   <div class="grid md:grid-cols-2 gap-6">
     <div class="card p-6 rounded-xl">
       <h2 class="text-lg text-cyan-300 font-semibold mb-3">📈 Grafik Penjualan</h2>
@@ -46,17 +51,17 @@
     </div>
   </div>
 
-  <!-- TABLE SECTION -->
+  <!-- Tabel + Export -->
   <div class="card p-6 rounded-xl mt-10 border border-cyan-400/30">
     
     <div class="flex justify-between mb-4">
-      <input id="filterInput" placeholder="Cari nama / filter A-Z..."
+      <input id="filterInput" placeholder="Cari nama… A-Z"
              class="px-4 py-2 rounded-lg bg-[#0b1728] border border-cyan-400/20 text-white w-64"
              onkeyup="filterTable()">
 
       <div>
-        <button onclick="exportExcel()" class="bg-green-600 px-4 py-2 rounded-lg mx-1 hover:bg-green-700">Excel</button>
-        <button onclick="exportPDF()" class="bg-red-600 px-4 py-2 rounded-lg mx-1 hover:bg-red-700">PDF</button>
+        <button onclick="exportExcel()" class="bg-green-600 px-4 py-2 rounded-lg mx-1 hover:bg-green-700">📥 Excel</button>
+        <button onclick="exportPDF()" class="bg-red-600 px-4 py-2 rounded-lg mx-1 hover:bg-red-700">📄 PDF</button>
       </div>
     </div>
 
@@ -79,45 +84,44 @@
       </table>
     </div>
   </div>
+
 </main>
 
-
 <script>
-  // Muat sidebar dahulu agar halaman utuh
-  fetch("sidebar.html")
-    .then(r=>r.text())
-    .then(html=>{document.getElementById("sidebar-container").innerHTML=html})
-    .then(()=> loadTransaksi()); // BARU LOAD DATA SETELAH SIDEBAR SIAP
+fetch("sidebar.html")
+  .then(r=>r.text())
+  .then(html=>document.getElementById("sidebar-container").innerHTML=html)
 </script>
 
-
-<!-- Supabase Data -->
+<!-- LOAD DATA SUPABASE -->
 <script type="module">
-  import supabase from "./supabase.js"
+import supabase from "./supabase.js"
 
-  const ctx = document.getElementById("chartPenjualan").getContext("2d");
-  const tbody = document.getElementById("transaksiBody");
-  const totalEl = document.getElementById("totalPenjualan");
+const tbody=document.getElementById("transaksiBody");
+const totalEl=document.getElementById("totalPenjualan");
+const ctx=document.getElementById("chartPenjualan").getContext("2d");
 
-  window.loadTransaksi = async ()=>{
+async function loadTransaksi(){
     let {data,error}=await supabase.from("transaksi").select("*");
-    if(error) return console.error(error);
+    if(error) return console.log(error);
 
-    tbody.innerHTML = data.map(t=>`
-      <tr class="border-b border-cyan-400/10 hover:bg-[#0d1d30]">
-        <td class="p-3">${t.id_user}</td>
-        <td class="p-3">${t.id_produk}</td>
-        <td class="p-3">${t.jumlah_dp}</td>
-        <td class="p-3">${t.metode_pembayaran}</td>
-        <td class="p-3">${new Date(t.tanggal).toLocaleDateString('id-ID')}</td>
-        <td class="p-3">${t.kode_pembayaran||"-"}</td>
-        <td class="p-3">${t.sisa_pembayaran||"-"}</td>
-        <td class="p-3">${t.catatan||"-"}</td>
-        <td class="p-3">${t.status||"-"}</td>
-      </tr>`).join("");
+    // render tabel
+    tbody.innerHTML=data.map(t=>`
+    <tr class="border-b border-cyan-400/10 hover:bg-[#102536]">
+      <td class="p-3">${t.id_user}</td>
+      <td class="p-3">${t.id_produk}</td>
+      <td class="p-3">${t.jumlah_dp}</td>
+      <td class="p-3">${t.metode_pembayaran}</td>
+      <td class="p-3">${new Date(t.tanggal).toLocaleDateString('id-ID')}</td>
+      <td class="p-3">${t.kode_pembayaran||"-"}</td>
+      <td class="p-3">${t.sisa_pembayaran||"-"}</td>
+      <td class="p-3">${t.catatan||"-"}</td>
+      <td class="p-3">${t.status||"-"}</td>
+    </tr>`).join("");
 
-    totalEl.innerText = data.length;
+    totalEl.innerText=data.length;
 
+    // Grafik penjualan
     let group={};
     data.forEach(x=>{
       let t=new Date(x.tanggal).toLocaleDateString("id-ID",{day:"2-digit",month:"short"});
@@ -126,31 +130,34 @@
 
     new Chart(ctx,{
       type:"line",
-      data:{labels:Object.keys(group),datasets:[{label:"Total Penjualan",data:Object.values(group),borderColor:"#00e5ff",borderWidth:3}]},
+      data:{labels:Object.keys(group),datasets:[{label:"Total Penjualan",data:Object.values(group),borderColor:"#00eaff",borderWidth:3}]},
       options:{plugins:{legend:{labels:{color:"#fff"}}},scales:{y:{ticks:{color:"#fff"}},x:{ticks:{color:"#fff"}}}}
-    })
-  }
+    });
+}
+
+window.exportExcel=()=>{ 
+   let wb=XLSX.utils.table_to_book(document.getElementById("tabelTransaksi")); 
+   XLSX.writeFile(wb,"Laporan_Penjualan_BYD.xlsx");
+}
+
+window.exportPDF=()=>{
+   const {jsPDF}=window.jspdf;
+   const doc=new jsPDF('landscape');
+   doc.text("LAPORAN PENJUALAN BYD",14,10);
+   doc.autoTable({html:"#tabelTransaksi",theme:"striped"});
+   doc.save("Laporan_Penjualan_BYD.pdf");
+}
+
+loadTransaksi();
 </script>
 
 <script>
-  function filterTable(){
-    let input=document.getElementById("filterInput").value.toLowerCase();
-    document.querySelectorAll("#transaksiBody tr").forEach(r=>{
-      r.style.display=r.innerText.toLowerCase().includes(input)?"":"none";
-    });
-  }
-
-  function exportExcel(){
-    let wb=XLSX.utils.table_to_book(document.getElementById("tabelTransaksi"));
-    XLSX.writeFile(wb,"laporan_penjualan.xlsx");
-  }
-
-  function exportPDF(){
-    const doc=new jspdf.jsPDF('landscape');
-    doc.text("Laporan Penjualan BYD",14,10);
-    doc.autoTable({html:"#tabelTransaksi",theme:"striped"});
-    doc.save("laporan_penjualan.pdf");
-  }
+function filterTable(){
+  let val=document.getElementById("filterInput").value.toLowerCase();
+  document.querySelectorAll("#transaksiBody tr").forEach(r=>{
+    r.style.display = r.innerText.toLowerCase().includes(val)?"":"none";
+  });
+}
 </script>
 
 </body>
