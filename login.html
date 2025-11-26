@@ -268,7 +268,7 @@
         const { data: adminProfile, error: adminError } = await supabase
           .from("admins")
           .select("*")
-          .eq("auth_id", user.id, id_admin)
+          .eq("id_admin", user.id)
           .single();
 
         if (!adminError && adminProfile) {
