@@ -15,28 +15,29 @@
     <li id="navHistory" class="hidden"><a href="history.html" class="hover:text-cyan-400 transition">History</a></li>
   </ul>
 
-  <!-- BUTTON LOGIN DESKTOP -->
+  <!-- AUTH BUTTON DESKTOP (Hilang ketika login) -->
   <div id="authButtons" class="hidden md:flex items-center space-x-3">
-    <a href="login.html" class="flex items-center gap-2 border border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-black font-semibold px-5 py-2 rounded-full text-sm shadow-md transition-all hover:scale-105">
+    <a href="login.html" class="flex items-center gap-2 border border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-black font-semibold px-5 py-2 rounded-full text-sm shadow-md transition hover:scale-105">
       <i data-lucide="log-in" class="w-4 h-4"></i>Login
     </a>
-    <a href="register.html" class="flex items-center gap-2 border border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-black font-semibold px-5 py-2 rounded-full text-sm shadow-md transition-all hover:scale-105">
+    <a href="register.html" class="flex items-center gap-2 border border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-black font-semibold px-5 py-2 rounded-full text-sm shadow-md transition hover:scale-105">
       <i data-lucide="user-plus" class="w-4 h-4"></i>Sign Up
     </a>
   </div>
 
-  <!-- USER ICON (when logged in) -->
+  <!-- USER ICON (Muncul ketika login) -->
   <div id="userSection" class="hidden md:flex">
     <a href="profile.html" class="flex items-center text-cyan-400 hover:text-white transition">
       <i data-lucide="user" class="w-6 h-6"></i>
     </a>
   </div>
 
-  <!-- HAMBURGER MENU MOBILE -->
+  <!-- HAMBURGER (Mobile Only) -->
   <button id="menuBtn" class="md:hidden">
     <i data-lucide="menu" class="w-8 h-8 text-cyan-400"></i>
   </button>
 </nav>
+
 
 <!-- ================= MOBILE MENU ================= -->
 <div id="overlay" class="fixed inset-0 bg-black/50 hidden z-40"></div>
@@ -49,11 +50,20 @@
   <a href="contact.html" class="block text-lg hover:text-cyan-400">Contact</a>
   <a href="history.html" id="mobileHistory" class="hidden text-lg hover:text-cyan-400">History</a>
 
-  <div class="flex flex-col gap-3 pt-4 border-t border-white/20">
+  <!-- Login / Register Mobile -->
+  <div id="authMobile" class="flex flex-col gap-3 pt-4 border-t border-white/20">
     <a href="login.html" class="text-center border border-cyan-400 py-2 rounded-full hover:bg-cyan-400 hover:text-black font-semibold transition">Login</a>
     <a href="register.html" class="text-center border border-cyan-400 py-2 rounded-full hover:bg-cyan-400 hover:text-black font-semibold transition">Sign Up</a>
   </div>
+
+  <!-- User Mobile (Muncul jika login) -->
+  <div id="userMobile" class="hidden flex flex-col gap-3 pt-4 border-t border-white/20">
+    <a href="profile.html" class="text-center border border-cyan-400 py-2 rounded-full hover:bg-cyan-400 hover:text-black font-semibold transition">Profile</a>
+    <button id="logoutBtn" class="text-center border border-red-400 py-2 rounded-full hover:bg-red-400 hover:text-black font-semibold transition">Logout</button>
+  </div>
+
 </div>
+
 
 <!-- ================= SCRIPT ================= -->
 <script>
@@ -65,18 +75,41 @@
     mobile.classList.toggle("hidden");
     overlay.classList.toggle("hidden");
   };
-
-  overlay.onclick = () => { 
+  overlay.onclick = () => {
     mobile.classList.add("hidden");
     overlay.classList.add("hidden");
   };
+
+  // ================= LOGIN STATE =================
+  function updateNavbarLoginState() {
+    let loggedIn = localStorage.getItem("username");
+
+    if (loggedIn) {
+      document.getElementById("authButtons").classList.add("hidden");
+      document.getElementById("userSection").classList.remove("hidden");
+      document.getElementById("authMobile").classList.add("hidden");
+      document.getElementById("userMobile").classList.remove("hidden");
+      document.getElementById("navHistory").classList.remove("hidden");
+      document.getElementById("mobileHistory").classList.remove("hidden");
+    }
+  }
+
+  // Logout
+  document.addEventListener("click", (e) => {
+    if (e.target.id === "logoutBtn") {
+      localStorage.removeItem("username");
+      location.reload();
+    }
+  });
+
+  updateNavbarLoginState();
 </script>
 
-<!-- ================= ANIMATION ================= -->
+
 <style>
   @keyframes slide {
     from {opacity: 0; transform: translateY(-15px);}
     to   {opacity: 1; transform: translateY(0);}
   }
-  .animate-slide-down { animation: slide .4s ease; }
+  .animate-slide-down{ animation:slide .4s ease }
 </style>
