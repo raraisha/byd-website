@@ -1,12 +1,15 @@
-        fetch("navbar.html")
-      .then(res => res.text())
-      .then(data => {
-        document.getElementById("navbar").innerHTML = data;
-        lucide.createIcons(); // aktifkan ikon setelah navbar dimuat
-      });
-        fetch("footer.html")
-    .then(res => res.text())
-    .then(data => {
-      document.getElementById("footer").innerHTML = data;
-      lucide.createIcons(); // aktifin ikon lucide
-    });
+// cek status login setelah navbar sudah terload
+function updateNavbarLoginState() {
+    const authButtons = document.getElementById("authButtons");
+    const userSection = document.getElementById("userSection");
+
+    const isLoggedIn = localStorage.getItem("userLoggedIn"); // ambil status login
+
+    if (isLoggedIn) {
+        authButtons?.classList.add("hidden"); // sembunyikan Login + SignUp
+        userSection?.classList.remove("hidden"); // munculkan icon user
+    } else {
+        authButtons?.classList.remove("hidden");
+        userSection?.classList.add("hidden");
+    }
+}
