@@ -64,55 +64,6 @@
 
 </div>
 
-<!-- ================= SCRIPT ================= -->
-<script>
-  const btn = document.getElementById("menuBtn");
-  const mobile = document.getElementById("mobileMenu");
-  const overlay = document.getElementById("overlay");
-
-  btn.onclick = () => {
-    mobile.classList.toggle("hidden");
-    overlay.classList.toggle("hidden");
-  };
-  overlay.onclick = () => {
-    mobile.classList.add("hidden");
-    overlay.classList.add("hidden");
-  };
-
-  // ================= LOGIN STATE =================
-  function updateNavbarLoginState() {
-    let loggedIn = localStorage.getItem("username");
-
-    if (loggedIn) {
-      document.getElementById("authButtons").classList.add("hidden");
-      document.getElementById("userSection").classList.remove("hidden");
-      document.getElementById("authMobile").classList.add("hidden");
-      document.getElementById("userMobile").classList.remove("hidden");
-      document.getElementById("userMobile").classList.add("flex");
-      document.getElementById("navHistory").classList.remove("hidden");
-      document.getElementById("mobileHistory").classList.remove("hidden");
-    } else {
-      document.getElementById("authButtons").classList.remove("hidden");
-      document.getElementById("userSection").classList.add("hidden");
-      document.getElementById("authMobile").classList.remove("hidden");
-      document.getElementById("userMobile").classList.add("hidden");
-      document.getElementById("navHistory").classList.add("hidden");
-      document.getElementById("mobileHistory").classList.add("hidden");
-    }
-  }
-
-  // Logout
-  document.addEventListener("click", (e) => {
-    if (e.target.id === "logoutBtn") {
-      localStorage.removeItem("username");
-      location.reload();
-    }
-  });
-
-  updateNavbarLoginState();
-</script>
-
-
 <style>
   @keyframes slide {
     from {opacity: 0; transform: translateY(-15px);}
