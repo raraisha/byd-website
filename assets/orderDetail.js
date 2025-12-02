@@ -21,10 +21,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.querySelector("#order-name").textContent = car.nama_produk;
   document.querySelector("#order-color").textContent = car.warna;
   document.querySelector("#order-type").textContent = car.varian;
+  const hargaNumber = Number(car.harga.toString().replace(/\./g, ''));
   document.querySelector("#order-price").textContent =
     `Rp ${parseFloat(car.harga).toLocaleString("id-ID")}`;
-
-  window.price = Number(car.harga);
+  window.price = hargaNumber;
 
   // =============================
   // 👤 USER PROFILE
@@ -121,8 +121,19 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("order-form").addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const paymentType = document.querySelector('input[name="payment-option"]:checked').value;
-    const amountToPay = Number(paymentAmount.dataset.amount);
+    const orderData = {
+      user_id: user.id,
+      name: fullName.value,
+      email: email.value,
+      phone: phone.value,
+      address: address.value,
+      status: "pending",
+      created_at: new Date().toISOString(),
+      car_name: car.nama_produk,
+      car_price: hargaNumber,
+    };
+
+    localStorage.setItem("bydOrder", JSON.stringify(orderData));
 
     const orderId = `ORDER-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
 
@@ -168,7 +179,7 @@ const transaksiData = {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           order_id: orderId,
-          gross_amount: amountToPay,
+          gross_amount: hargaNumber,
           payment_type: "bank_transfer",
           enabled_payments: ["bank_transfer"],
           customer: {
