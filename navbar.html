@@ -57,13 +57,12 @@
   </div>
 
   <!-- User Mobile (Muncul jika login) -->
-  <div id="userMobile" class="hidden flex flex-col gap-3 pt-4 border-t border-white/20">
+  <div id="userMobile" class="hidden flex-col gap-3 pt-4 border-t border-white/20">
     <a href="profile.html" class="text-center border border-cyan-400 py-2 rounded-full hover:bg-cyan-400 hover:text-black font-semibold transition">Profile</a>
     <button id="logoutBtn" class="text-center border border-red-400 py-2 rounded-full hover:bg-red-400 hover:text-black font-semibold transition">Logout</button>
   </div>
 
 </div>
-
 
 <!-- ================= SCRIPT ================= -->
 <script>
@@ -89,8 +88,16 @@
       document.getElementById("userSection").classList.remove("hidden");
       document.getElementById("authMobile").classList.add("hidden");
       document.getElementById("userMobile").classList.remove("hidden");
+      document.getElementById("userMobile").classList.add("flex");
       document.getElementById("navHistory").classList.remove("hidden");
       document.getElementById("mobileHistory").classList.remove("hidden");
+    } else {
+      document.getElementById("authButtons").classList.remove("hidden");
+      document.getElementById("userSection").classList.add("hidden");
+      document.getElementById("authMobile").classList.remove("hidden");
+      document.getElementById("userMobile").classList.add("hidden");
+      document.getElementById("navHistory").classList.add("hidden");
+      document.getElementById("mobileHistory").classList.add("hidden");
     }
   }
 
