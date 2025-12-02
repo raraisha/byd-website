@@ -4,7 +4,7 @@ async function loadNavbar() {
   const container = document.getElementById("navbar");
   const html = await fetch("./navbar.html").then(res => res.text());
   container.innerHTML = html;
-
+  lucide?.createIcons();
   initializeNavbar();
 }
 
