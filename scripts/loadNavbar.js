@@ -1,4 +1,4 @@
-import supabase from "./supabase.js";
+import supabase from "../supabase.js";
 
 async function loadNavbar() {
   const container = document.getElementById("navbar");
