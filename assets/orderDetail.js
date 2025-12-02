@@ -102,6 +102,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   const dpRate = 0.05;
   const paymentRadios = document.querySelectorAll('input[name="payment-option"]');
   const paymentAmount = document.getElementById("payment-amount");
+  let paymentType = "full";
+  let amountToPay = window.price;
+
 
   function updatePayment(type) {
     const amount = type === "full"
@@ -113,7 +116,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   updatePayment("full");
-  paymentRadios.forEach(r => r.addEventListener("change", e => updatePayment(e.target.value)));
+  paymentRadios.forEach(r =>
+    r.addEventListener("change", e => {
+      paymentType = e.target.value;   // <-- simpan tipe pembayaran
+      updatePayment(paymentType);
+
+      amountToPay = Number(paymentAmount.dataset.amount); // <-- simpan jumlah bayar
+    })
+  );
 
   // =============================
   // 📝 SUBMIT ORDER
